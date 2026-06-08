@@ -24,7 +24,7 @@ const ABAS: { id: Aba; label: string; icon: string }[] = [
   { id: 'perfil',   label: 'Perfil',   icon: '👤' },
 ]
 
-const SIDEBAR_W = 232
+const SIDEBAR_W = 224
 
 export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
   const [aba, setAba] = useState<Aba>('home')
@@ -37,7 +37,7 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
   }, [])
 
   const mainStyle = desktop
-    ? { marginLeft: SIDEBAR_W, paddingLeft: 32, paddingRight: 32 }
+    ? { marginLeft: SIDEBAR_W }
     : {}
 
   return (
@@ -121,7 +121,7 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
         )}
 
         {/* Conteudo da aba */}
-        <div style={{ flex: 1, paddingTop: desktop ? 24 : 16, paddingBottom: desktop ? 40 : 96, paddingLeft: desktop ? 0 : 16, paddingRight: desktop ? 0 : 16, overflowX: 'hidden' }}>
+        <div style={{ flex: 1, paddingTop: desktop ? 24 : 16, paddingBottom: desktop ? 40 : 96, paddingLeft: desktop ? 40 : 16, paddingRight: desktop ? 40 : 16 }}>
           {aba === 'home'     && <Home     perfil={perfil} />}
           {aba === 'agenda'   && <Agenda   perfil={perfil} />}
           {aba === 'caixa'    && <Caixa    perfil={perfil} />}
