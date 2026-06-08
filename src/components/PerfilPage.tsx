@@ -77,7 +77,7 @@ export default function PerfilPage({ perfil, setPerfil, onLogout }: Props) {
           <div key={field}>
             <label className="text-xs text-gray-500 mb-1 block">{label}</label>
             <input type={type} placeholder={placeholder}
-              value={(form as Record<string,string>)[field] || ''}
+              value={(form as Record<string, unknown>)[field] as string || ''}
               onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
               className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
           </div>
