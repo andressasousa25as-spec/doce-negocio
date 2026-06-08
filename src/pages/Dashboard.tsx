@@ -99,8 +99,8 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
         </div>
 
         {/* Conteúdo da aba */}
-        <div className="flex-1 pb-24 md:pb-10 w-full overflow-x-hidden">
-          <div className="p-4" style={{ paddingLeft: '1.5rem', paddingTop: '1.5rem', paddingRight: '1.5rem' }}>
+        <div className="flex-1 pb-24 md:pb-10 w-full">
+          <div className="p-4" style={{ paddingLeft: '2rem', paddingTop: '1.5rem', paddingRight: '1.5rem' }}>
           {aba === 'home'     && <Home     perfil={perfil} />}
           {aba === 'agenda'   && <Agenda   perfil={perfil} />}
           {aba === 'caixa'    && <Caixa    perfil={perfil} />}
