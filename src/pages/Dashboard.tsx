@@ -38,7 +38,7 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
     <div className="min-h-screen bg-pink-50 flex flex-col md:flex-row overflow-x-hidden">
 
       {/* SIDEBAR — visível só em tablet/desktop */}
-      <aside className="hidden md:flex flex-col w-56 bg-white shadow-md fixed top-0 left-0 h-full z-20">
+      <aside className="hidden md:flex flex-col w-56 bg-white shadow-md sticky top-0 h-screen flex-shrink-0 z-20">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-pink-100">
           <div className="flex items-center gap-2">
@@ -72,8 +72,7 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
       </aside>
 
       {/* CONTEÚDO PRINCIPAL */}
-      <div className="flex-1 flex flex-col min-w-0"
-           style={{ marginLeft: isDesktop ? '224px' : '0' }}>
+      <div className="flex-1 flex flex-col min-w-0">
 
         {/* Header mobile — visível só em celular */}
         <div className="md:hidden bg-white shadow-sm px-4 py-3 flex items-center justify-between sticky top-0 z-10">
