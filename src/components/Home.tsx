@@ -51,7 +51,7 @@ export default function Home({ perfil }: Props) {
   )
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       {/* Saudação */}
       <div className="bg-gradient-to-r from-pink-500 to-pink-400 rounded-2xl p-4 text-white">
         <p className="text-pink-100 text-sm">Bem-vinda de volta! 🎉</p>
