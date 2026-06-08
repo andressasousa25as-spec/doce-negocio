@@ -121,7 +121,7 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
         )}
 
         {/* Conteudo da aba */}
-        <div style={{ flex: 1, padding: desktop ? '24px 0 40px' : '16px 16px 96px' }}>
+        <div style={{ flex: 1, paddingTop: desktop ? 24 : 16, paddingBottom: desktop ? 40 : 96, paddingLeft: desktop ? 0 : 16, paddingRight: desktop ? 0 : 16, overflowX: 'hidden' }}>
           {aba === 'home'     && <Home     perfil={perfil} />}
           {aba === 'agenda'   && <Agenda   perfil={perfil} />}
           {aba === 'caixa'    && <Caixa    perfil={perfil} />}
