@@ -12,9 +12,7 @@ body {
 @media (min-width: 768px) {
   .main-content {
     margin-left: 224px;
-  }
-  .conteudo-aba {
-    padding: 1.5rem 2rem;
+    padding: 1.5rem;
   }
 }
 
