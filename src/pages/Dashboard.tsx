@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import type { Perfil } from '../types'
 import Home       from '../components/Home'
 import Agenda     from '../components/Agenda'
@@ -16,13 +16,15 @@ interface Props {
 type Aba = 'home' | 'agenda' | 'caixa' | 'clientes' | 'mei' | 'perfil'
 
 const ABAS: { id: Aba; label: string; icon: string }[] = [
-  { id: 'home',     label: 'Início',   icon: '🏠' },
+  { id: 'home',     label: 'Inicio',   icon: '🏠' },
   { id: 'agenda',   label: 'Agenda',   icon: '📅' },
-  { id: 'caixa',   label: 'Caixa',    icon: '💰' },
+  { id: 'caixa',    label: 'Caixa',    icon: '💰' },
   { id: 'clientes', label: 'Clientes', icon: '👥' },
   { id: 'mei',      label: 'MEI',      icon: '📋' },
   { id: 'perfil',   label: 'Perfil',   icon: '👤' },
 ]
+
+const SIDEBAR_W = 224
 
 export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
   const [aba, setAba] = useState<Aba>('home')
@@ -34,102 +36,116 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
     return () => window.removeEventListener('resize', fn)
   }, [])
 
+  const mainStyle = desktop
+    ? { marginLeft: SIDEBAR_W, paddingLeft: 32, paddingRight: 32 }
+    : {}
+
   return (
-    <div className="min-h-screen bg-pink-50 flex flex-col md:flex-row overflow-x-hidden">
+    <div style={{ minHeight: '100vh', backgroundColor: '#FFF0F5', display: 'flex', flexDirection: desktop ? 'row' : 'column' }}>
 
-      {/* SIDEBAR — visível só em tablet/desktop */}
-      <aside className="hidden md:flex flex-col w-56 bg-white shadow-md fixed top-0 left-0 h-full z-20">
-        {/* Logo */}
-        <div className="px-5 py-5 border-b border-pink-100">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl">🎂</span>
-            <div>
-              <p className="font-bold text-pink-700 text-sm leading-tight">Doce Negócio</p>
-              <p className="text-xs text-pink-400 truncate max-w-[140px]">{perfil.nome_negocio || perfil.nome}</p>
+      {/* SIDEBAR desktop */}
+      {desktop && (
+        <aside style={{
+          position: 'fixed', top: 0, left: 0,
+          width: SIDEBAR_W, height: '100vh',
+          backgroundColor: 'white',
+          boxShadow: '2px 0 8px rgba(0,0,0,0.08)',
+          display: 'flex', flexDirection: 'column',
+          zIndex: 20
+        }}>
+          <div style={{ padding: '20px', borderBottom: '1px solid #FCE7F3' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 28 }}>🎂</span>
+              <div>
+                <p style={{ fontWeight: 700, color: '#BE185D', fontSize: 13 }}>Doce Negocio</p>
+                <p style={{ fontSize: 11, color: '#F472B6', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
+                  {perfil.nome_negocio || perfil.nome}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-        {/* Nav links */}
-        <nav className="flex-1 py-4 space-y-1 px-2">
-          {ABAS.map(a => (
-            <button key={a.id} onClick={() => setAba(a.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                aba === a.id
-                  ? 'bg-pink-500 text-white'
-                  : 'text-gray-500 hover:bg-pink-50 hover:text-pink-600'}`}>
-              <span className="text-lg">{a.icon}</span>
-              {a.label}
+          <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {ABAS.map(a => (
+              <button key={a.id} onClick={() => setAba(a.id)} style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                padding: '10px 12px', borderRadius: 12, fontSize: 13, fontWeight: 500,
+                border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+                backgroundColor: aba === a.id ? '#EC4899' : 'transparent',
+                color: aba === a.id ? 'white' : '#6B7280',
+              }}>
+                <span style={{ fontSize: 16 }}>{a.icon}</span>
+                {a.label}
+              </button>
+            ))}
+          </nav>
+          <div style={{ padding: '12px 16px', borderTop: '1px solid #FCE7F3' }}>
+            <button onClick={onLogout} style={{ fontSize: 11, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer' }}>
+              Sair da conta
             </button>
-          ))}
-        </nav>
-        {/* Sair */}
-        <div className="px-4 py-4 border-t border-pink-100">
-          <button onClick={onLogout}
-            className="w-full text-xs text-gray-400 hover:text-red-400 transition-colors text-left">
-            Sair da conta
-          </button>
-        </div>
-      </aside>
-
-      {/* CONTEÚDO PRINCIPAL */}
-      <div className="flex-1 flex flex-col min-w-0"
-        style={desktop ? { marginLeft: '224px', paddingLeft: '2rem', paddingRight: '2rem', paddingTop: '1rem' } : {}}>
-
-        {/* Header mobile — visível só em celular */}
-        <div className="md:hidden bg-white shadow-sm px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🎂</span>
-            <div>
-              <p className="text-xs text-pink-400">Olá,</p>
-              <p className="font-bold text-pink-700 text-sm leading-tight">
-                {perfil.nome_negocio || perfil.nome}
-              </p>
-            </div>
           </div>
-          <button onClick={onLogout} className="text-xs text-gray-400 hover:text-red-400 transition-colors">
-            Sair
-          </button>
-        </div>
+        </aside>
+      )}
+
+      {/* CONTEUDO PRINCIPAL */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', ...mainStyle }}>
+
+        {/* Header mobile */}
+        {!desktop && (
+          <div style={{ backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 22 }}>🎂</span>
+              <div>
+                <p style={{ fontSize: 10, color: '#F472B6' }}>Ola,</p>
+                <p style={{ fontWeight: 700, color: '#BE185D', fontSize: 13 }}>
+                  {perfil.nome_negocio || perfil.nome}
+                </p>
+              </div>
+            </div>
+            <button onClick={onLogout} style={{ fontSize: 11, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer' }}>Sair</button>
+          </div>
+        )}
 
         {/* Header desktop */}
-        <div className="hidden md:flex bg-white shadow-sm px-6 py-4 items-center justify-between sticky top-0 z-10">
-          <h1 className="font-bold text-gray-700 text-base">
-            {ABAS.find(a => a.id === aba)?.icon} {ABAS.find(a => a.id === aba)?.label}
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-gray-400">
-              Plano {perfil.plano} · {perfil.ativo ? '✅ Ativo' : '❌ Inativo'}
-            </span>
-            <button onClick={onLogout} className="text-xs text-gray-400 hover:text-red-400 transition-colors">
-              Sair
-            </button>
+        {desktop && (
+          <div style={{ backgroundColor: 'white', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+            <h1 style={{ fontWeight: 700, color: '#374151', fontSize: 15 }}>
+              {ABAS.find(a => a.id === aba)?.icon} {ABAS.find(a => a.id === aba)?.label}
+            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ fontSize: 11, color: '#9CA3AF' }}>
+                Plano {perfil.plano} · {perfil.ativo ? '✅ Ativo' : '❌ Inativo'}
+              </span>
+              <button onClick={onLogout} style={{ fontSize: 11, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer' }}>Sair</button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Conteúdo da aba */}
-        <div className="flex-1 pb-24 md:pb-10 w-full">
-          <div className="p-4 aba-conteudo">
+        {/* Conteudo da aba */}
+        <div style={{ flex: 1, padding: desktop ? '24px 0 40px' : '16px 16px 96px' }}>
           {aba === 'home'     && <Home     perfil={perfil} />}
           {aba === 'agenda'   && <Agenda   perfil={perfil} />}
           {aba === 'caixa'    && <Caixa    perfil={perfil} />}
           {aba === 'clientes' && <Clientes perfil={perfil} />}
           {aba === 'mei'      && <ModuloMei />}
           {aba === 'perfil'   && <Perfil_  perfil={perfil} setPerfil={setPerfil} onLogout={onLogout} />}
-          </div>
         </div>
       </div>
 
-      {/* BOTTOM NAV — visível só em celular */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-pink-100 flex z-20">
-        {ABAS.map(a => (
-          <button key={a.id} onClick={() => setAba(a.id)}
-            className={`flex-1 flex flex-col items-center py-2 transition-colors ${
-              aba === a.id ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'}`}>
-            <span className="text-xl">{a.icon}</span>
-            <span className="text-xs mt-0.5 font-medium">{a.label}</span>
-          </button>
-        ))}
-      </nav>
+      {/* BOTTOM NAV mobile */}
+      {!desktop && (
+        <nav style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', backgroundColor: 'white', borderTop: '1px solid #FCE7F3', display: 'flex', zIndex: 20 }}>
+          {ABAS.map(a => (
+            <button key={a.id} onClick={() => setAba(a.id)} style={{
+              flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+              padding: '8px 0', border: 'none', background: 'none', cursor: 'pointer',
+              color: aba === a.id ? '#EC4899' : '#9CA3AF'
+            }}>
+              <span style={{ fontSize: 20 }}>{a.icon}</span>
+              <span style={{ fontSize: 11, marginTop: 2, fontWeight: 500 }}>{a.label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
     </div>
   )
 }
