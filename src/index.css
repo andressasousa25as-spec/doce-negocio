@@ -13,9 +13,6 @@ body {
   .main-content {
     margin-left: 224px;
   }
-  .main-content > * {
-    padding-left: 1.5rem;
-  }
 }
 
 /* Scrollbar suave */

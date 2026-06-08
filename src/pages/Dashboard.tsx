@@ -99,13 +99,15 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
         </div>
 
         {/* Conteúdo da aba */}
-        <div className="flex-1 p-6 md:p-10 pb-24 md:pb-10 w-full overflow-x-hidden">
+        <div className="flex-1 pb-24 md:pb-10 w-full overflow-x-hidden">
+          <div className="p-4 md:p-8">
           {aba === 'home'     && <Home     perfil={perfil} />}
           {aba === 'agenda'   && <Agenda   perfil={perfil} />}
           {aba === 'caixa'    && <Caixa    perfil={perfil} />}
           {aba === 'clientes' && <Clientes perfil={perfil} />}
           {aba === 'mei'      && <ModuloMei />}
           {aba === 'perfil'   && <Perfil_  perfil={perfil} setPerfil={setPerfil} onLogout={onLogout} />}
+          </div>
         </div>
       </div>
 
