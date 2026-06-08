@@ -8,6 +8,13 @@ body {
   background-color: #FFF8F0;
 }
 
+/* Sidebar offset no desktop */
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: 224px;
+  }
+}
+
 /* Scrollbar suave */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
