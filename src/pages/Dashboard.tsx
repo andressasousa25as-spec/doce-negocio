@@ -88,9 +88,14 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
           <h1 className="font-bold text-gray-700 text-base">
             {ABAS.find(a => a.id === aba)?.icon} {ABAS.find(a => a.id === aba)?.label}
           </h1>
-          <span className="text-xs text-gray-400">
-            Plano {perfil.plano} · {perfil.ativo ? '✅ Ativo' : '❌ Inativo'}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-xs text-gray-400">
+              Plano {perfil.plano} · {perfil.ativo ? '✅ Ativo' : '❌ Inativo'}
+            </span>
+            <button onClick={onLogout} className="text-xs text-gray-400 hover:text-red-400 transition-colors">
+              Sair
+            </button>
+          </div>
         </div>
 
         {/* Conteúdo da aba */}
