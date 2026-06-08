@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { Perfil } from '../types'
 import Home       from '../components/Home'
 import Agenda     from '../components/Agenda'
@@ -26,13 +26,6 @@ const ABAS: { id: Aba; label: string; icon: string }[] = [
 
 export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
   const [aba, setAba] = useState<Aba>('home')
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768)
-
-  useEffect(() => {
-    const handler = () => setIsDesktop(window.innerWidth >= 768)
-    window.addEventListener('resize', handler)
-    return () => window.removeEventListener('resize', handler)
-  }, [])
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col md:flex-row overflow-x-hidden">
