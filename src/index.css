@@ -14,6 +14,9 @@ body {
     margin-left: 224px;
     padding: 1.5rem 2rem;
   }
+  .aba-conteudo {
+    padding: 1.5rem 2rem 2rem 2rem !important;
+  }
 }
 
 /* Scrollbar suave */

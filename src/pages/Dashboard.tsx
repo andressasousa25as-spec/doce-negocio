@@ -100,7 +100,7 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
 
         {/* Conteúdo da aba */}
         <div className="flex-1 pb-24 md:pb-10 w-full">
-          <div className="p-4" style={{ paddingLeft: '2rem', paddingTop: '1.5rem', paddingRight: '1.5rem' }}>
+          <div className="p-4 aba-conteudo">
           {aba === 'home'     && <Home     perfil={perfil} />}
           {aba === 'agenda'   && <Agenda   perfil={perfil} />}
           {aba === 'caixa'    && <Caixa    perfil={perfil} />}
