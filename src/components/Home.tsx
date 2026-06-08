@@ -84,7 +84,7 @@ export default function Home({ perfil }: Props) {
       )}
 
       {/* Pedidos de hoje */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm">
         <div className="px-4 py-3 border-b border-pink-50 flex items-center justify-between">
           <h3 className="font-semibold text-gray-700 text-sm">📅 Entregas de hoje</h3>
           <span className="text-xs bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full font-medium">

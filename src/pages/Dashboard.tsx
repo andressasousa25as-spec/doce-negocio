@@ -24,7 +24,7 @@ const ABAS: { id: Aba; label: string; icon: string }[] = [
   { id: 'perfil',   label: 'Perfil',   icon: '👤' },
 ]
 
-const SIDEBAR_W = 224
+const SIDEBAR_W = 240
 
 export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
   const [aba, setAba] = useState<Aba>('home')
