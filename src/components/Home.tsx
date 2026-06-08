@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Perfil, Dica, Pedido } from '../types'
 import { dicaService, pedidoService } from '../services/supabaseService'
-import { format, isToday, isTomorrow, parseISO, addDays } from 'date-fns'
+import { format, parseISO, addDays } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 interface Props { perfil: Perfil }
@@ -47,12 +47,7 @@ export default function Home({ perfil }: Props) {
   const sText: Record<string, string> = { pendente:'#854D0E',confirmado:'#1E40AF',em_producao:'#5B21B6',pronto:'#14532D', entregue:'#6B7280',cancelado:'#991B1B' }
   const sDot:  Record<string, string> = { pendente:'#EAB308',confirmado:'#3B82F6',em_producao:'#8B5CF6',pronto:'#22C55E', entregue:'#9CA3AF',cancelado:'#EF4444' }
 
-  function labelData(d: string) {
-    const dt = parseISO(d)
-    if (isToday(dt))    return 'Hoje'
-    if (isTomorrow(dt)) return 'Amanhã'
-    return format(dt, "EEE, dd/MM", { locale: ptBR })
-  }
+  // labelData removida — nao utilizada no layout atual
 
   if (loading) return (
     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:240 }}>
@@ -135,25 +130,80 @@ export default function Home({ perfil }: Props) {
         ))}
       </div>
 
-      {/* Proximos — apenas mobile */}
-      {!desktop && proximos.length > 0 && (
-        <div style={{ backgroundColor:'white',borderRadius:16,overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ padding:'12px 16px',borderBottom:'1px solid #FCE7F3' }}>
-            <h3 style={{ fontWeight:700,color:'#111827',fontSize:13,margin:0 }}>🗓 Próximos pedidos</h3>
-          </div>
-          {proximos.map((p, i) => (
-            <div key={p.id} style={{ padding:'12px 16px',borderBottom:i<proximos.length-1?'1px solid #FDF2F8':'none',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12 }}>
-              <div style={{ flex:1,minWidth:0 }}>
-                <p style={{ fontWeight:600,color:'#111827',fontSize:13,margin:'0 0 2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis' }}>{p.cliente_nome}</p>
-                <p style={{ fontSize:11,color:'#9CA3AF',margin:0 }}>{p.descricao}</p>
-              </div>
-              <div style={{ textAlign:'right',flexShrink:0 }}>
-                <p style={{ fontSize:12,fontWeight:700,color:'#7C3AED',margin:'0 0 2px' }}>{labelData(p.data_entrega)}</p>
-                <p style={{ fontSize:14,fontWeight:800,color:'#16A34A',margin:0 }}>R$ {p.valor.toFixed(2).replace('.',',')}</p>
-              </div>
+      {/* Secoes da visao do dia — aparecem na coluna unica no mobile */}
+      {!desktop && (
+        <>
+          {/* Financeiro mobile */}
+          <div style={{ backgroundColor:'white',borderRadius:16,overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ padding:'12px 16px',borderBottom:'1px solid #FCE7F3' }}>
+              <h3 style={{ fontWeight:700,color:'#111827',fontSize:13,margin:0 }}>💰 Financeiro de hoje</h3>
             </div>
-          ))}
-        </div>
+            <div style={{ padding:'14px 16px',display:'flex',flexDirection:'column',gap:10 }}>
+              <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center' }}>
+                <span style={{ fontSize:12,color:'#6B7280' }}>Total em pedidos</span>
+                <span style={{ fontSize:15,fontWeight:800,color:'#111827' }}>R$ {totalHoje.toFixed(2).replace('.',',')}</span>
+              </div>
+              <div style={{ height:1,backgroundColor:'#F3F4F6' }} />
+              <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center' }}>
+                <span style={{ fontSize:12,color:'#6B7280' }}>✅ Já recebido</span>
+                <span style={{ fontSize:13,fontWeight:700,color:'#16A34A' }}>R$ {recebidoHoje.toFixed(2).replace('.',',')}</span>
+              </div>
+              <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center' }}>
+                <span style={{ fontSize:12,color:'#6B7280' }}>⏳ A receber</span>
+                <span style={{ fontSize:13,fontWeight:700,color:'#D97706' }}>R$ {aReceber.toFixed(2).replace('.',',')}</span>
+              </div>
+              {totalHoje > 0 && (
+                <div>
+                  <div style={{ height:6,backgroundColor:'#F3F4F6',borderRadius:99,overflow:'hidden' }}>
+                    <div style={{ height:'100%',borderRadius:99,backgroundColor:'#22C55E',width:`${Math.round((recebidoHoje/totalHoje)*100)}%`,transition:'width 0.5s' }} />
+                  </div>
+                  <p style={{ fontSize:10,color:'#9CA3AF',margin:'4px 0 0',textAlign:'right' }}>
+                    {Math.round((recebidoHoje/totalHoje)*100)}% recebido
+                  </p>
+                </div>
+              )}
+              {totalHoje === 0 && (
+                <p style={{ fontSize:12,color:'#D1D5DB',textAlign:'center',margin:'4px 0 0' }}>Nenhum pedido hoje</p>
+              )}
+            </div>
+          </div>
+
+          {/* Proximos 7 dias mobile */}
+          <div style={{ backgroundColor:'white',borderRadius:16,overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ padding:'12px 16px',borderBottom:'1px solid #FCE7F3',display:'flex',alignItems:'center',justifyContent:'space-between' }}>
+              <h3 style={{ fontWeight:700,color:'#111827',fontSize:13,margin:0 }}>📆 Próximos 7 dias</h3>
+              <span style={{ fontSize:11,fontWeight:700,color:'#7C3AED',backgroundColor:'#F5F3FF',borderRadius:20,padding:'2px 8px' }}>{semana.length}</span>
+            </div>
+            {semana.length === 0 ? (
+              <div style={{ padding:'20px 16px',textAlign:'center',color:'#D1D5DB',fontSize:12 }}>Nenhum pedido nos próximos 7 dias</div>
+            ) : (
+              <div style={{ padding:'8px 0' }}>
+                {semana.slice(0,5).map((p,i) => (
+                  <div key={p.id} style={{ padding:'10px 16px',borderBottom:i<semana.slice(0,5).length-1?'1px solid #FDF2F8':'none',display:'flex',alignItems:'center',gap:10 }}>
+                    <div style={{ backgroundColor:'#F5F3FF',borderRadius:8,padding:'4px 7px',flexShrink:0,textAlign:'center',minWidth:40 }}>
+                      <p style={{ fontSize:13,fontWeight:800,color:'#7C3AED',margin:0,lineHeight:1.2 }}>{format(parseISO(p.data_entrega),'dd',{locale:ptBR})}</p>
+                      <p style={{ fontSize:9,color:'#A78BFA',margin:0,textTransform:'uppercase',fontWeight:700 }}>{format(parseISO(p.data_entrega),'MMM',{locale:ptBR})}</p>
+                    </div>
+                    <div style={{ flex:1,minWidth:0 }}>
+                      <p style={{ fontWeight:600,color:'#111827',fontSize:13,margin:'0 0 1px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis' }}>{p.cliente_nome}</p>
+                      <p style={{ fontSize:11,color:'#9CA3AF',margin:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis' }}>{p.descricao}</p>
+                    </div>
+                    <p style={{ fontSize:13,fontWeight:700,color:'#16A34A',margin:0,flexShrink:0 }}>R$ {p.valor.toFixed(2).replace('.',',')}</p>
+                  </div>
+                ))}
+                {semana.length > 5 && (
+                  <p style={{ fontSize:11,color:'#9CA3AF',textAlign:'center',padding:'8px 16px',margin:0 }}>+{semana.length-5} pedidos</p>
+                )}
+              </div>
+            )}
+            {semana.length > 0 && (
+              <div style={{ padding:'10px 16px',borderTop:'1px solid #FCE7F3',backgroundColor:'#FAFAFA',display:'flex',justifyContent:'space-between',alignItems:'center' }}>
+                <span style={{ fontSize:11,color:'#6B7280',fontWeight:600 }}>Total 7 dias</span>
+                <span style={{ fontSize:13,fontWeight:800,color:'#7C3AED' }}>R$ {totalSemana.toFixed(2).replace('.',',')}</span>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   )
