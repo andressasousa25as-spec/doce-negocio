@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Perfil } from '../types'
 import Home       from '../components/Home'
 import Agenda     from '../components/Agenda'
@@ -26,6 +26,13 @@ const ABAS: { id: Aba; label: string; icon: string }[] = [
 
 export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
   const [aba, setAba] = useState<Aba>('home')
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768)
+
+  useEffect(() => {
+    const handler = () => setIsDesktop(window.innerWidth >= 768)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col md:flex-row overflow-x-hidden">
@@ -65,7 +72,8 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
       </aside>
 
       {/* CONTEÚDO PRINCIPAL */}
-      <div className="flex-1 flex flex-col min-w-0 main-content">
+      <div className="flex-1 flex flex-col min-w-0"
+           style={{ marginLeft: isDesktop ? '224px' : '0' }}>
 
         {/* Header mobile — visível só em celular */}
         <div className="md:hidden bg-white shadow-sm px-4 py-3 flex items-center justify-between sticky top-0 z-10">
