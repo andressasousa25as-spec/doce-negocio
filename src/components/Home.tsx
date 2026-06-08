@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import type { Perfil, Dica, Pedido } from '../types'
 import { dicaService, pedidoService } from '../services/supabaseService'
 import { format, parseISO, addDays } from 'date-fns'
@@ -73,8 +73,8 @@ export default function Home({ perfil }: Props) {
       {/* KPIs */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
         {[
-          { label:'Hoje',      val:pedHoje.length,  cor:'#EC4899', bg:'#FDF2F8', e:'�' },
-          { label:'Próximos',  val:proximos.length, cor:'#7C3AED', bg:'#F5F3FF', e:'🗐' },
+          { label:'Hoje',      val:pedHoje.length,  cor:'#EC4899', bg:'#FDF2F8', e:'📅' },
+          { label:'Próximos',  val:proximos.length, cor:'#7C3AED', bg:'#F5F3FF', e:'🗓' },
           { label:'Atrasados', val:pedAtras.length, cor:pedAtras.length>0?'#DC2626':'#16A34A', bg:pedAtras.length>0?'#FEF2F2':'#F0FDF4', e:pedAtras.length>0?'⚠️':'✅' },
         ].map(k => (
           <div key={k.label} style={{ backgroundColor:k.bg, borderRadius:14, padding:'14px 12px', textAlign:'center' }}>
