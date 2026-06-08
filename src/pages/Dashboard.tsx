@@ -28,7 +28,7 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
   const [aba, setAba] = useState<Aba>('home')
 
   return (
-    <div className="min-h-screen bg-pink-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-pink-50 flex flex-col md:flex-row overflow-x-hidden">
 
       {/* SIDEBAR — visível só em tablet/desktop */}
       <aside className="hidden md:flex flex-col w-56 bg-white shadow-md fixed top-0 left-0 h-full z-20">
@@ -94,7 +94,7 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
         </div>
 
         {/* Conteúdo da aba */}
-        <div className="flex-1 px-4 md:px-8 pt-4 pb-24 md:pb-8 w-full">
+        <div className="flex-1 px-4 md:px-8 pt-4 pb-24 md:pb-8 w-full overflow-x-hidden">
           {aba === 'home'     && <Home     perfil={perfil} />}
           {aba === 'agenda'   && <Agenda   perfil={perfil} />}
           {aba === 'caixa'    && <Caixa    perfil={perfil} />}
