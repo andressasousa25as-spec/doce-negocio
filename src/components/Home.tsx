@@ -60,7 +60,7 @@ export default function Home({ perfil }: Props) {
     </div>
   )
 
-  /* ── COLUNA ESQUERDA ──────────────────────────────────── */
+  /* ── COLUNA ESQUERDA */
   const left = (
     <div style={{ display:'flex', flexDirection:'column', gap:16, flex:1, minWidth:0 }}>
 
@@ -78,8 +78,8 @@ export default function Home({ perfil }: Props) {
       {/* KPIs */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
         {[
-          { label:'Hoje',      val:pedHoje.length,  cor:'#EC4899', bg:'#FDF2F8', e:'📅' },
-          { label:'Próximos',  val:proximos.length, cor:'#7C3AED', bg:'#F5F3FF', e:'🗓' },
+          { label:'Hoje',      val:pedHoje.length,  cor:'#EC4899', bg:'#FDF2F8', e:'�' },
+          { label:'Próximos',  val:proximos.length, cor:'#7C3AED', bg:'#F5F3FF', e:'🗐' },
           { label:'Atrasados', val:pedAtras.length, cor:pedAtras.length>0?'#DC2626':'#16A34A', bg:pedAtras.length>0?'#FEF2F2':'#F0FDF4', e:pedAtras.length>0?'⚠️':'✅' },
         ].map(k => (
           <div key={k.label} style={{ backgroundColor:k.bg, borderRadius:14, padding:'14px 12px', textAlign:'center' }}>
@@ -94,7 +94,7 @@ export default function Home({ perfil }: Props) {
       {dica && (
         <div style={{ backgroundColor:'#FFFBEB',border:'1px solid #FDE68A',borderRadius:16,padding:'14px 16px' }}>
           <p style={{ fontSize:11,fontWeight:700,color:'#D97706',margin:'0 0 6px' }}>✨ Dica do dia</p>
-          <p style={{ fontSize:13,color:'textTransform':'#92400E',lineHeight:1.5,margin:0 }}>{-dica.texto}</p>
+          <p style={{ fontSize:13,color:'#92400E',lineHeight:1.5,margin:0 }}>{dica.texto}</p>
         </div>
       )}
 
@@ -105,7 +105,7 @@ export default function Home({ perfil }: Props) {
             ⚠️ {pedAtras.length} pedido{pedAtras.length>1?'s':''} em atraso!
           </p>
           {pedAtras.map(p => (
-            <p key={p.id} style={{ fontSize:13,color:'textTransform':'#991B1B',margin:'2px 0' }}>• {p.cliente_nome} — {p.descricao}</p>
+            <p key={p.id} style={{ fontSize:13,color:'#991B1B',margin:'2px 0' }}>• {p.cliente_nome} — {p.descricao}</p>
           ))}
         </div>
       )}
@@ -139,7 +139,7 @@ export default function Home({ perfil }: Props) {
       {!desktop && proximos.length > 0 && (
         <div style={{ backgroundColor:'white',borderRadius:16,overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ padding:'12px 16px',borderBottom:'1px solid #FCE7F3' }}>
-            <h3 style={{ fontWeight:700,color:'textTransform':'#111827',fontSize:13,margin:0 }}>🗓 Próximos pedidos</h3>
+            <h3 style={{ fontWeight:700,color:'#111827',fontSize:13,margin:0 }}>🗓 Próximos pedidos</h3>
           </div>
           {proximos.map((p, i) => (
             <div key={p.id} style={{ padding:'12px 16px',borderBottom:i<proximos.length-1?'1px solid #FDF2F8':'none',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12 }}>
@@ -148,7 +148,7 @@ export default function Home({ perfil }: Props) {
                 <p style={{ fontSize:11,color:'#9CA3AF',margin:0 }}>{p.descricao}</p>
               </div>
               <div style={{ textAlign:'right',flexShrink:0 }}>
-                <p style={{ fontSize:12,fontWeight:700,color:'textTransform':'#7C3AED',margin:'0 0 2px' }}>{labelData(p.data_entrega)}</p>
+                <p style={{ fontSize:12,fontWeight:700,color:'#7C3AED',margin:'0 0 2px' }}>{labelData(p.data_entrega)}</p>
                 <p style={{ fontSize:14,fontWeight:800,color:'#16A34A',margin:0 }}>R$ {p.valor.toFixed(2).replace('.',',')}</p>
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function Home({ perfil }: Props) {
     </div>
   )
 
-  /* ── COLUNA DIREITA — VISÃO DO DIA ─────────────────── */
+  /* ── COLUNA DIREITA - VISAO DO DIA */
   const right = (
     <div style={{ display:'flex',flexDirection:'column',gap:14,width:280,flexShrink:0 }}>
 
@@ -179,7 +179,7 @@ export default function Home({ perfil }: Props) {
           </div>
           <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center' }}>
             <span style={{ fontSize:12,color:'#6B7280' }}>⏳ A receber</span>
-            <span style={{ fontSize:13,fontWeight:700,color:'textTransform':'#D97706' }}>R$ {aReceber.toFixed(2).replace('.',',')}</span>
+            <span style={{ fontSize:13,fontWeight:700,color:'#D97706' }}>R$ {aReceber.toFixed(2).replace('.',',')}</span>
           </div>
           {totalHoje > 0 && (
             <div>
@@ -215,7 +215,7 @@ export default function Home({ perfil }: Props) {
                 <div style={{ flex:1,minWidth:0 }}>
                   <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start' }}>
                     <p style={{ fontWeight:600,color:'#111827',fontSize:12,margin:'0 0 1px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140 }}>{p.cliente_nome}</p>
-                    <span style={{ fontSize:10,color:'#EC4899',fontWeight:700,slexshrink:0,marginLeft:4 }}>
+                    <span style={{ fontSize:10,color:'#EC4899',fontWeight:700,flexShrink:0,marginLeft:4 }}>
                       {p.hora_entrega ? p.hora_entrega.slice(0,5) : 'Sem hora'}
                     </span>
                   </div>
@@ -233,8 +233,8 @@ export default function Home({ perfil }: Props) {
       {/* Próximos 7 dias */}
       <div style={{ backgroundColor:'white',borderRadius:16,overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
         <div style={{ padding:'12px 16px',borderBottom:'1px solid #FCE7F3',display:'flex',alignItems:'center',justifyContent:'space-between' }}>
-          <h3 style={{ fontWeight:700,color:'#111827',fontSize:13,margin:0 }}>📆 Proximos 7 dias</h3>
-          <span style={{ fontSize:11,fontWeight:700,color:'textTransform':'#7C3AED',backgroundColor:'textTransform':'#F5F3FF',borderRadius:20,padding:'2px 8px' }}>{semana.length}</span>
+          <h3 style={{ fontWeight:700,color:'#111827',fontSize:13,margin:0 }}>📆 Próximos 7 dias</h3>
+          <span style={{ fontSize:11,fontWeight:700,color:'#7C3AED',backgroundColor:'#F5F3FF',borderRadius:20,padding:'2px 8px' }}>{semana.length}</span>
         </div>
         {semana.length === 0 ? (
           <div style={{ padding:'20px 16px',textAlign:'center',color:'#D1D5DB',fontSize:12 }}>Nenhum pedido nos próximos 7 dias</div>
@@ -244,13 +244,13 @@ export default function Home({ perfil }: Props) {
               <div key={p.id} style={{ padding:'8px 16px',borderBottom:i<semana.slice(0,6).length-1?'1px solid #FDF2F8':'none',display:'flex',alignItems:'center',gap:10 }}>
                 <div style={{ backgroundColor:'#F5F3FF',borderRadius:8,padding:'4px 7px',flexShrink:0,textAlign:'center',minWidth:40 }}>
                   <p style={{ fontSize:13,fontWeight:800,color:'#7C3AED',margin:0,lineHeight:1.2 }}>{format(parseISO(p.data_entrega),'dd',{locale:ptBR})}</p>
-                  <p style={{ fontSize:9,color:'textTransform':'#A78BFA',margin:0,textTransform:'uppercase',fontWeight:700 }}>{format(parseISO(p.data_entrega),'MMM',{locale:ptBR})}</p>
+                  <p style={{ fontSize:9,color:'#A78BFA',margin:0,textTransform:'uppercase',fontWeight:700 }}>{format(parseISO(p.data_entrega),'MMM',{locale:ptBR})}</p>
                 </div>
                 <div style={{ flex:1,minWidth:0 }}>
-                  <p style={{ fontWeight:600,color:'textTransform':'#111827',fontSize:12,margin:'0 0 1px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis' }}>{p.cliente_nome}</p>
-                  <p style={{ fontSize:11,color:'textTransform':'#9CA3AF',margin:,extTransform:'0',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis' }}>{p.descricao}</p>
+                  <p style={{ fontWeight:600,color:'#111827',fontSize:12,margin:'0 0 1px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis' }}>{p.cliente_nome}</p>
+                  <p style={{ fontSize:11,color:'#9CA3AF',margin:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis' }}>{p.descricao}</p>
                 </div>
-                <p style={{ fontSize:12,fontWeight:700,color:'extTransform':'#16A34A',margin:0,flexShrink:0 }}>R$ {p.valor.toFixed(2).replace('.',',')}</p>
+                <p style={{ fontSize:12,fontWeight:700,color:'#16A34A',margin:0,flexShrink:0 }}>R$ {p.valor.toFixed(2).replace('.',',')}</p>
               </div>
             ))}
             {semana.length > 6 && (
