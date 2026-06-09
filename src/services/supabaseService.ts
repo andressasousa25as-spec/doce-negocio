@@ -95,7 +95,9 @@ export const caixaService = {
       .order('data', { ascending: false })
     if (mes) {
       const inicio = mes + '-01'
-      const fim    = mes + '-31'
+      const [_ano, _numMes] = mes.split('-').map(Number)
+      const _ultimoDia = new Date(_ano, _numMes, 0).getDate()
+      const fim = mes + '-' + String(_ultimoDia).padStart(2, '0')
       query = query.gte('data', inicio).lte('data', fim)
     }
     const { data, error } = await query
