@@ -30,7 +30,7 @@ export default function ModuloMei() {
             ⚠️ DAS deste mês pode estar em atraso!
           </div>
         )}
-        <a href="https://www.gov.br/empresas-e-negocios/pt-br/empreendedor/servicos-para-mei/pagamento-das"
+        <a href="https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/Identificacao"
           target="_blank" rel="noreferrer"
           className="mt-3 block bg-white text-pink-600 font-bold text-sm text-center py-2.5 rounded-xl hover:bg-pink-50 transition-colors">
           💳 Pagar DAS agora
@@ -79,7 +79,7 @@ export default function ModuloMei() {
           Emita suas notas fiscais pelo portal da Prefeitura de Macapá. Necessário login com CNPJ do MEI.
         </p>
         <div className="space-y-2">
-          <a href="https://nfse.macapa.ap.gov.br" target="_blank" rel="noreferrer"
+          <a href="https://www.notaeletronica.com.br/macapa/Login/Login_NFE.aspx" target="_blank" rel="noreferrer"
             className="block bg-amber-500 text-white text-sm text-center font-bold py-2.5 rounded-xl hover:bg-amber-600 transition-colors">
             🧾 Emitir NFS-e Macapá
           </a>
