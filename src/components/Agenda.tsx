@@ -7,27 +7,27 @@ import { ptBR } from 'date-fns/locale'
 interface Props { perfil: Perfil }
 
 const STATUS_LIST = ['pendente','confirmado','em_producao','pronto','entregue','cancelado'] as const
-const STATUS_LABEL: Record<string, string> = {
-  pendente: '⏳ Pendente', confirmado: '✅ Confirmado',
-  em_producao: '👩‍🍳 Em produção', pronto: '🎂 Pronto',
-  entregue: '📦 Entregue', cancelado: '❌ Cancelado'
+const STATUS_LABEL: Record<string,string> = {
+  pendente:'Pendente', confirmado:'Confirmado',
+  em_producao:'Em producao', pronto:'Pronto',
+  entregue:'Entregue', cancelado:'Cancelado',
 }
-const STATUS_COLOR: Record<string, string> = {
-  pendente: 'bg-yellow-100 text-yellow-700',
-  confirmado: 'bg-blue-100 text-blue-700',
-  em_producao: 'bg-purple-100 text-purple-700',
-  pronto: 'bg-green-100 text-green-700',
-  entregue: 'bg-gray-100 text-gray-500',
-  cancelado: 'bg-red-100 text-red-400'
-}
+const S_BG:   Record<string,string> = { pendente:'#FEF9C3',confirmado:'#DBEAFE',em_producao:'#EDE9FE',pronto:'#DCFCE7',entregue:'#F3F4F6',cancelado:'#FEE2E2' }
+const S_TEXT: Record<string,string> = { pendente:'#854D0E',confirmado:'#1E40AF',em_producao:'#5B21B6',pronto:'#14532D',entregue:'#6B7280',cancelado:'#991B1B' }
 
 const FORMA_LIST = ['pix','dinheiro','cartao','transferencia']
 
 const VAZIO: Omit<Pedido,'id'|'created_at'> = {
-  perfil_id: '', cliente_id: undefined, cliente_nome: '',
-  descricao: '', data_entrega: '', hora_entrega: '',
-  valor: 0, sinal_pago: 0, status: 'pendente',
-  forma_pagamento: 'pix', observacoes: '', pago: false
+  perfil_id:'', cliente_id:undefined, cliente_nome:'',
+  descricao:'', data_entrega:'', hora_entrega:'',
+  valor:0, sinal_pago:0, status:'pendente',
+  forma_pagamento:'pix', observacoes:'', pago:false
+}
+
+const S = {
+  input: { width:'100%', border:'1px solid #FBCFE8', borderRadius:12, padding:'10px 12px', fontSize:13, outline:'none', boxSizing:'border-box' as const },
+  select: { width:'100%', border:'1px solid #FBCFE8', borderRadius:12, padding:'10px 12px', fontSize:13, outline:'none', backgroundColor:'white', boxSizing:'border-box' as const },
+  label: { fontSize:11, color:'#9CA3AF', marginBottom:4, display:'block' as const },
 }
 
 export default function Agenda({ perfil }: Props) {
@@ -47,111 +47,90 @@ export default function Agenda({ perfil }: Props) {
 
   async function carregar() {
     setLoading(true)
-    pedidoService.listar(perfil.id)
-      .then(d => setPedidos(d || []))
-      .finally(() => setLoading(false))
+    pedidoService.listar(perfil.id).then(d => setPedidos(d || [])).finally(() => setLoading(false))
   }
 
-  function abrirNovo() {
-    setForm({ ...VAZIO, perfil_id: perfil.id })
-    setDetalhe(null)
-    setModal(true)
-  }
-
-  function abrirEdicao(p: Pedido) {
-    setForm({ ...p })
-    setDetalhe(null)
-    setModal(true)
-  }
+  function abrirNovo() { setForm({ ...VAZIO, perfil_id: perfil.id }); setDetalhe(null); setModal(true) }
+  function abrirEdicao(p: Pedido) { setForm({ ...p }); setDetalhe(null); setModal(true) }
 
   async function salvar() {
     if (!form.cliente_nome || !form.descricao || !form.data_entrega) return
     setSaving(true)
     try {
-      if ((form as Pedido).id) {
-        await pedidoService.atualizar((form as Pedido).id, form)
-      } else {
-        await pedidoService.criar(form)
-      }
-      setModal(false)
-      carregar()
+      if ((form as Pedido).id) { await pedidoService.atualizar((form as Pedido).id, form) }
+      else { await pedidoService.criar(form) }
+      setModal(false); carregar()
     } finally { setSaving(false) }
   }
 
   async function atualizarStatus(id: string, status: string) {
     await pedidoService.atualizar(id, { status } as Partial<Pedido>)
-    carregar()
-    setDetalhe(null)
+    carregar(); setDetalhe(null)
   }
 
   async function deletar(id: string) {
     if (!confirm('Excluir este pedido?')) return
-    await pedidoService.deletar(id)
-    carregar()
-    setDetalhe(null)
+    await pedidoService.deletar(id); carregar(); setDetalhe(null)
   }
 
-  const filtrados = filtro === 'todos'
-    ? pedidos
-    : pedidos.filter(p => p.status === filtro)
+  const filtrados = filtro === 'todos' ? pedidos : pedidos.filter(p => p.status === filtro)
 
   return (
-    <div className="space-y-4">
+    <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-700">📅 Agenda de Pedidos</h2>
-        <button onClick={abrirNovo}
-          className="bg-pink-500 text-white text-sm px-4 py-2 rounded-xl font-semibold hover:bg-pink-600 transition-colors">
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <h2 style={{ fontSize:17, fontWeight:700, color:'#374151', margin:0 }}>Agenda de Pedidos</h2>
+        <button onClick={abrirNovo} style={{ backgroundColor:'#EC4899', color:'white', fontSize:13, padding:'8px 18px', borderRadius:12, fontWeight:600, border:'none', cursor:'pointer' }}>
           + Novo
         </button>
       </div>
 
-      {/* Filtro de status */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {['todos', ...STATUS_LIST].map(s => (
+      {/* Filtros de status */}
+      <div style={{ display:'flex', gap:8, overflowX:'auto', paddingBottom:4 }}>
+        {(['todos', ...STATUS_LIST] as string[]).map(s => (
           <button key={s} onClick={() => setFiltro(s)}
-            className={`text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium transition-colors ${
-              filtro === s ? 'bg-pink-500 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>
-            {s === 'todos' ? '📋 Todos' : STATUS_LABEL[s]}
+            style={{ fontSize:12, padding:'6px 14px', borderRadius:20, whiteSpace:'nowrap', fontWeight:500, border:'none', cursor:'pointer', flexShrink:0,
+              backgroundColor: filtro === s ? '#EC4899' : 'white',
+              color:           filtro === s ? 'white'   : '#6B7280',
+              boxShadow: filtro === s ? 'none' : '0 1px 3px rgba(0,0,0,0.08)',
+            }}>
+            {s === 'todos' ? 'Todos' : STATUS_LABEL[s]}
           </button>
         ))}
       </div>
 
       {/* Lista */}
       {loading ? (
-        <div className="text-center py-12 text-pink-300 animate-pulse">Carregando...</div>
+        <div style={{ textAlign:'center', padding:'48px 0', color:'#F9A8D4', fontSize:14 }}>Carregando...</div>
       ) : filtrados.length === 0 ? (
-        <div className="text-center py-12 text-gray-300">
-          <p className="text-4xl mb-2">🎂</p>
-          <p>Nenhum pedido aqui</p>
+        <div style={{ textAlign:'center', padding:'48px 0', color:'#D1D5DB' }}>
+          <p style={{ fontSize:40, margin:'0 0 8px' }}>🎂</p>
+          <p style={{ fontSize:13, margin:0 }}>Nenhum pedido aqui</p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
           {filtrados.map(p => (
             <div key={p.id} onClick={() => setDetalhe(p)}
-              className="bg-white rounded-2xl shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-700 truncate">{p.cliente_nome}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 truncate">{p.descricao}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLOR[p.status]}`}>
+              style={{ backgroundColor:'white', borderRadius:16, boxShadow:'0 1px 4px rgba(0,0,0,0.06)', padding:'14px 16px', cursor:'pointer' }}>
+              <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <p style={{ fontWeight:600, color:'#374151', fontSize:14, margin:'0 0 2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.cliente_nome}</p>
+                  <p style={{ fontSize:12, color:'#9CA3AF', margin:'0 0 8px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.descricao}</p>
+                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <span style={{ fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:20, backgroundColor:S_BG[p.status], color:S_TEXT[p.status] }}>
                       {STATUS_LABEL[p.status]}
                     </span>
-                    <span className="text-xs text-gray-400">
-                      📅 {format(parseISO(p.data_entrega), "dd/MM", { locale: ptBR })}
+                    <span style={{ fontSize:11, color:'#9CA3AF' }}>
+                      {format(parseISO(p.data_entrega), 'dd/MM', { locale:ptBR })}
                       {p.hora_entrega ? ' ' + p.hora_entrega.slice(0,5) : ''}
                     </span>
                   </div>
                 </div>
-                <div className="text-right ml-2">
-                  <p className="font-bold text-green-600">
-                    R$ {p.valor.toFixed(2).replace('.', ',')}
-                  </p>
+                <div style={{ textAlign:'right', marginLeft:12, flexShrink:0 }}>
+                  <p style={{ fontWeight:700, color:'#16A34A', fontSize:14, margin:'0 0 2px' }}>R$ {p.valor.toFixed(2).replace('.',',')}</p>
                   {p.sinal_pago > 0 && (
-                    <p className="text-xs text-gray-400">
-                      Sinal: R$ {p.sinal_pago.toFixed(2).replace('.', ',')}
-                    </p>
+                    <p style={{ fontSize:11, color:'#9CA3AF', margin:0 }}>Sinal: R$ {p.sinal_pago.toFixed(2).replace('.',',')}</p>
                   )}
                 </div>
               </div>
@@ -162,60 +141,55 @@ export default function Agenda({ perfil }: Props) {
 
       {/* Modal Detalhe */}
       {detalhe && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center p-0"
-          onClick={() => setDetalhe(null)}>
-          <div className="bg-white w-full max-w-md rounded-t-3xl p-6 space-y-4"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-gray-700">{detalhe.cliente_nome}</h3>
-              <button onClick={() => setDetalhe(null)} className="text-gray-400">✕</button>
+        <div onClick={() => setDetalhe(null)}
+          style={{ position:'fixed', inset:0, backgroundColor:'rgba(0,0,0,0.5)', zIndex:50, display:'flex', alignItems:'flex-end', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ backgroundColor:'white', width:'100%', maxWidth:448, borderRadius:'24px 24px 0 0', padding:24, display:'flex', flexDirection:'column', gap:14 }}>
+
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <h3 style={{ fontWeight:700, color:'#374151', fontSize:15, margin:0 }}>{detalhe.cliente_nome}</h3>
+              <button onClick={() => setDetalhe(null)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:18, color:'#9CA3AF' }}>✕</button>
             </div>
-            <p className="text-sm text-gray-500">{detalhe.descricao}</p>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="bg-pink-50 rounded-xl p-3">
-                <p className="text-xs text-gray-400">Entrega</p>
-                <p className="font-semibold text-gray-700">
-                  {format(parseISO(detalhe.data_entrega), "dd/MM/yyyy")}
-                  {detalhe.hora_entrega ? ' ' + detalhe.hora_entrega.slice(0,5) : ''}
-                </p>
-              </div>
-              <div className="bg-green-50 rounded-xl p-3">
-                <p className="text-xs text-gray-400">Valor total</p>
-                <p className="font-bold text-green-600">R$ {detalhe.valor.toFixed(2).replace('.', ',')}</p>
-              </div>
-              <div className="bg-blue-50 rounded-xl p-3">
-                <p className="text-xs text-gray-400">Sinal pago</p>
-                <p className="font-semibold text-blue-600">R$ {detalhe.sinal_pago.toFixed(2).replace('.', ',')}</p>
-              </div>
-              <div className="bg-amber-50 rounded-xl p-3">
-                <p className="text-xs text-gray-400">Restante</p>
-                <p className="font-semibold text-amber-600">
-                  R$ {(detalhe.valor - detalhe.sinal_pago).toFixed(2).replace('.', ',')}
-                </p>
-              </div>
+
+            <p style={{ fontSize:13, color:'#6B7280', margin:0 }}>{detalhe.descricao}</p>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+              {[
+                { label:'Entrega',    val: format(parseISO(detalhe.data_entrega),'dd/MM/yyyy') + (detalhe.hora_entrega ? ' ' + detalhe.hora_entrega.slice(0,5) : ''), bg:'#FDF2F8', col:'#374151' },
+                { label:'Valor total', val:'R$ ' + detalhe.valor.toFixed(2).replace('.',','),   bg:'#F0FDF4', col:'#16A34A' },
+                { label:'Sinal pago',  val:'R$ ' + detalhe.sinal_pago.toFixed(2).replace('.',','), bg:'#EFF6FF', col:'#2563EB' },
+                { label:'Restante',    val:'R$ ' + (detalhe.valor - detalhe.sinal_pago).toFixed(2).replace('.',','), bg:'#FFFBEB', col:'#D97706' },
+              ].map(c => (
+                <div key={c.label} style={{ backgroundColor:c.bg, borderRadius:14, padding:'10px 12px' }}>
+                  <p style={{ fontSize:11, color:'#9CA3AF', margin:'0 0 2px' }}>{c.label}</p>
+                  <p style={{ fontWeight:600, color:c.col, fontSize:13, margin:0 }}>{c.val}</p>
+                </div>
+              ))}
             </div>
+
             {detalhe.observacoes && (
-              <p className="text-xs text-gray-500 bg-gray-50 rounded-xl p-3">{detalhe.observacoes}</p>
+              <p style={{ fontSize:12, color:'#6B7280', backgroundColor:'#F9FAFB', borderRadius:12, padding:'10px 12px', margin:0 }}>{detalhe.observacoes}</p>
             )}
-            {/* Mudar status */}
+
             <div>
-              <p className="text-xs text-gray-400 mb-2">Atualizar status:</p>
-              <div className="flex flex-wrap gap-2">
+              <p style={{ fontSize:12, color:'#9CA3AF', margin:'0 0 8px' }}>Atualizar status:</p>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
                 {STATUS_LIST.filter(s => s !== detalhe.status).map(s => (
                   <button key={s} onClick={() => atualizarStatus(detalhe.id, s)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-pink-100 hover:text-pink-600 transition-colors">
+                    style={{ fontSize:12, padding:'6px 14px', borderRadius:20, border:'none', cursor:'pointer', backgroundColor:'#F3F4F6', color:'#374151' }}>
                     {STATUS_LABEL[s]}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="flex gap-2">
+
+            <div style={{ display:'flex', gap:8 }}>
               <button onClick={() => abrirEdicao(detalhe)}
-                className="flex-1 bg-pink-500 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-pink-600">
-                ✏️ Editar
+                style={{ flex:1, backgroundColor:'#EC4899', color:'white', padding:'11px 0', borderRadius:12, fontSize:13, fontWeight:600, border:'none', cursor:'pointer' }}>
+                Editar
               </button>
               <button onClick={() => deletar(detalhe.id)}
-                className="bg-red-50 text-red-400 py-2.5 px-4 rounded-xl text-sm hover:bg-red-100">
+                style={{ backgroundColor:'#FEF2F2', color:'#F87171', padding:'11px 16px', borderRadius:12, fontSize:13, border:'none', cursor:'pointer' }}>
                 🗑️
               </button>
             </div>
@@ -225,94 +199,99 @@ export default function Agenda({ perfil }: Props) {
 
       {/* Modal Novo/Editar */}
       {modal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center"
-          onClick={() => setModal(false)}>
-          <div className="bg-white w-full max-w-md rounded-t-3xl p-6 space-y-3 max-h-[90vh] overflow-y-auto"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-gray-700">
+        <div onClick={() => setModal(false)}
+          style={{ position:'fixed', inset:0, backgroundColor:'rgba(0,0,0,0.5)', zIndex:50, display:'flex', alignItems:'flex-end', justifyContent:'center' }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ backgroundColor:'white', width:'100%', maxWidth:448, borderRadius:'24px 24px 0 0', padding:24, display:'flex', flexDirection:'column', gap:12, maxHeight:'90vh', overflowY:'auto' }}>
+
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+              <h3 style={{ fontWeight:700, color:'#374151', fontSize:15, margin:0 }}>
                 {(form as Pedido).id ? 'Editar Pedido' : 'Novo Pedido'}
               </h3>
-              <button onClick={() => setModal(false)} className="text-gray-400">✕</button>
+              <button onClick={() => setModal(false)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:18, color:'#9CA3AF' }}>✕</button>
             </div>
-            {/* Nome do cliente */}
+
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Cliente *</label>
+              <label style={S.label}>Cliente *</label>
               {clientes.length > 0 ? (
                 <select value={form.cliente_nome}
-                  onChange={e => {
-                    const c = clientes.find(x => x.nome === e.target.value)
-                    setForm(f => ({ ...f, cliente_nome: e.target.value, cliente_id: c?.id }))
-                  }}
-                  className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
-                  <option value="">Selecione ou digite...</option>
+                  onChange={e => { const c = clientes.find(x => x.nome === e.target.value); setForm(f => ({ ...f, cliente_nome: e.target.value, cliente_id: c?.id })) }}
+                  style={S.select}>
+                  <option value="">Selecione...</option>
                   {clientes.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
                 </select>
               ) : (
                 <input type="text" placeholder="Nome do cliente" value={form.cliente_nome}
                   onChange={e => setForm(f => ({ ...f, cliente_nome: e.target.value }))}
-                  className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
+                  style={S.input} />
               )}
             </div>
+
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Descrição do pedido *</label>
+              <label style={S.label}>Descricao do pedido *</label>
               <input type="text" placeholder="Ex: Bolo de chocolate 2kg" value={form.descricao}
                 onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))}
-                className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
+                style={S.input} />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">Data entrega *</label>
+                <label style={S.label}>Data entrega *</label>
                 <input type="date" value={form.data_entrega}
                   onChange={e => setForm(f => ({ ...f, data_entrega: e.target.value }))}
-                  className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
+                  style={S.input} />
               </div>
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">Hora (opcional)</label>
+                <label style={S.label}>Hora (opcional)</label>
                 <input type="time" value={form.hora_entrega || ''}
                   onChange={e => setForm(f => ({ ...f, hora_entrega: e.target.value }))}
-                  className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
+                  style={S.input} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">Valor total (R$)</label>
+                <label style={S.label}>Valor total (R$)</label>
                 <input type="number" step="0.01" min="0" value={form.valor}
                   onChange={e => setForm(f => ({ ...f, valor: parseFloat(e.target.value) || 0 }))}
-                  className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
+                  style={S.input} />
               </div>
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">Sinal pago (R$)</label>
+                <label style={S.label}>Sinal pago (R$)</label>
                 <input type="number" step="0.01" min="0" value={form.sinal_pago}
                   onChange={e => setForm(f => ({ ...f, sinal_pago: parseFloat(e.target.value) || 0 }))}
-                  className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
+                  style={S.input} />
               </div>
             </div>
+
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Forma de pagamento</label>
+              <label style={S.label}>Forma de pagamento</label>
               <select value={form.forma_pagamento}
                 onChange={e => setForm(f => ({ ...f, forma_pagamento: e.target.value as Pedido['forma_pagamento'] }))}
-                className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
+                style={S.select}>
                 {FORMA_LIST.map(f => <option key={f} value={f}>{f.charAt(0).toUpperCase()+f.slice(1)}</option>)}
               </select>
             </div>
+
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Status</label>
+              <label style={S.label}>Status</label>
               <select value={form.status}
                 onChange={e => setForm(f => ({ ...f, status: e.target.value as Pedido['status'] }))}
-                className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
+                style={S.select}>
                 {STATUS_LIST.map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
               </select>
             </div>
+
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Observações</label>
-              <textarea rows={2} placeholder="Detalhes, sabores, decoração..." value={form.observacoes || ''}
+              <label style={S.label}>Observacoes</label>
+              <textarea rows={2} placeholder="Detalhes, sabores, decoracao..." value={form.observacoes || ''}
                 onChange={e => setForm(f => ({ ...f, observacoes: e.target.value }))}
-                className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none" />
+                style={{ ...S.input, resize:'none' as const }} />
             </div>
+
             <button onClick={salvar} disabled={saving}
-              className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50">
-              {saving ? 'Salvando...' : ((form as Pedido).id ? 'Salvar alterações' : 'Criar pedido 🎂')}
+              style={{ width:'100%', backgroundColor: saving ? '#F9A8D4' : '#EC4899', color:'white', fontWeight:700, padding:'12px 0', borderRadius:12, border:'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize:14, marginTop:4 }}>
+              {saving ? 'Salvando...' : ((form as Pedido).id ? 'Salvar alteracoes' : 'Criar pedido 🎂')}
             </button>
           </div>
         </div>
