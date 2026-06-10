@@ -134,19 +134,26 @@ export default function PerfilPage({ perfil, setPerfil, onLogout }: Props) {
         </div>
       </div>
 
-      {/* Pagamento */}
+      {/* Assinatura */}
       <div style={S.card}>
         <h3 style={{ margin: '0 0 12px', fontWeight: 600, color: '#374151', fontSize: 14 }}>
           💳 Assinatura
         </h3>
-        <a href="https://www.mercadopago.com.br" target="_blank" rel="noreferrer"
+        <p style={{ fontSize: 13, color: '#6B7280', margin: '0 0 12px' }}>
+          {perfil.status_assinatura === 'trial'
+            ? 'Você está no teste grátis. Assine para não perder o acesso.'
+            : perfil.status_assinatura === 'ativa'
+            ? `Plano ${perfil.plano === 'completo' ? 'Completo' : 'Básico'} ativo.`
+            : 'Sem assinatura ativa. Escolha um plano para liberar o app.'}
+        </p>
+        <button
+          onClick={() => { window.location.href = '/?assinar=1' }}
           style={{
-            display: 'block', backgroundColor: '#3B82F6', color: 'white', fontSize: 14,
-            textAlign: 'center', fontWeight: 700, padding: '10px', borderRadius: 12,
-            textDecoration: 'none',
+            display: 'block', width: '100%', backgroundColor: '#EC4899', color: 'white', fontSize: 14,
+            textAlign: 'center', fontWeight: 700, padding: '12px', borderRadius: 12, border: 'none', cursor: 'pointer',
           }}>
-          Gerenciar assinatura →
-        </a>
+          {perfil.status_assinatura === 'ativa' ? 'Trocar de plano' : 'Ver planos e assinar'}
+        </button>
       </div>
 
       {/* Sair */}

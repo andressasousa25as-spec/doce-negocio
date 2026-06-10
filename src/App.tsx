@@ -110,6 +110,9 @@ export default function App() {
     return <Planos perfil={perfil} onLogout={handleLogout} />
   }
 
+  const querAssinar = new URLSearchParams(window.location.search).get('assinar') === '1'
+  if (querAssinar) return <Planos perfil={perfil} onLogout={handleLogout} />
+
   // Confeiteira → Dashboard principal
   return <Dashboard perfil={perfil} acesso={acesso} onLogout={handleLogout} setPerfil={setPerfil} />
 }
