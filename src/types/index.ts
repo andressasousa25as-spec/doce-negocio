@@ -1,3 +1,6 @@
+export type StatusAssinatura = 'trial' | 'ativa' | 'expirada' | 'cancelada'
+export type Plano = 'basico' | 'completo'
+
 export interface Perfil {
   id: string
   created_at: string
@@ -9,10 +12,12 @@ export interface Perfil {
   cnpj_mei?: string
   cidade: string
   ativo: boolean
-  plano: string
+  plano: Plano
+  status_assinatura: StatusAssinatura
   valor_plano: number
   data_inicio: string
   data_venc?: string
+  mp_subscription_id?: string
   foto_url?: string
   is_adm: boolean
 }
