@@ -80,3 +80,13 @@ export interface ObrigacaoMei {
   tipo: 'mensal' | 'anual' | 'eventual'
   link?: string
 }
+
+export interface Aviso {
+  id: string
+  titulo: string
+  mensagem: string
+  tipo: 'info' | 'promo' | 'alerta'
+  ativo: boolean
+  agendado_para?: string | null
+  created_at: string
+}
