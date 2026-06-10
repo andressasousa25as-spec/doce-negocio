@@ -1,51 +1,61 @@
-# Design — Painel ADM com gráficos, ajustes de clientes e novidades
+# Design — Painel ADM: gráficos, gestão de clientes, novidades, e-mail, WhatsApp, agendamento e relatórios
 
 **Data:** 2026-06-10
 **Projeto:** Doce Negócio (gestão para confeiteiras/MEI)
-**Stack:** React + Vite + TS + Supabase (Postgres + Edge Functions) + Vercel
+**Stack:** React + Vite + TS + Supabase (Postgres + Edge Functions) + Vercel + Resend (e-mail)
 
 ## Objetivo
 
-Transformar o `DashboardAdm` (hoje só uma lista com 2 números) em um painel de controle completo, com:
+Transformar o `DashboardAdm` num painel de controle completo:
 
-1. **Visão geral** com cartões de indicadores e gráfico de crescimento de cadastros.
+1. **Visão geral** com indicadores e gráfico de crescimento.
 2. **Gestão de clientes**: ativar/inativar, trocar plano, dar dias grátis, editar dados, bloquear.
-3. **Novidades**: criar avisos que aparecem dentro do app das confeiteiras.
+3. **Novidades**: avisos que aparecem no app das confeiteiras, podendo também ser **enviados por e-mail** (automático) e por **WhatsApp** (link manual), com **agendamento** de exibição.
+4. **Relatórios**: exportar clientes/indicadores em planilha (CSV).
 
 ## Estrutura — 3 abas
 
-O painel passa a ter 3 abas no topo: **Visão Geral**, **Clientes**, **Novidades**.
+`DashboardAdm` vira um shell com abas: **Visão Geral**, **Clientes**, **Novidades**.
 
 ### Aba 1 — Visão Geral
 
-Cartões de números (calculados a partir de todos os perfis não-admin):
-- **Total de clientes** — contagem de perfis.
-- **Assinantes ativos** — `status_assinatura = 'ativa'` e `data_venc >= hoje`.
-- **Em teste** — `status_assinatura = 'trial'` e `data_venc >= hoje`.
-- **Prestes a vencer (7 dias)** — `data_venc` entre hoje e hoje+7, status `ativa` ou `trial`.
-- **Receita mensal** — soma de `valor_plano` dos ativos.
+Cartões (calculados de todos os perfis não-admin):
+- **Total de clientes**
+- **Assinantes ativos** — `status_assinatura='ativa'` e `data_venc >= hoje`
+- **Em teste** — `status_assinatura='trial'` e `data_venc >= hoje`
+- **Prestes a vencer (7 dias)** — `data_venc` entre hoje e hoje+7 (status ativa/trial)
+- **Receita mensal** — soma de `valor_plano` dos ativos
 
-Gráfico de crescimento (novos cadastros, a partir de `created_at`):
-- Barras simples em HTML/CSS (sem biblioteca).
-- Botão alterna entre **mensal (últimos 6 meses)** e **diário (últimos 30 dias)**.
-- Cálculo das faixas (buckets) é feito no cliente, a partir da lista de perfis.
+Gráfico de crescimento (a partir de `created_at`), barras em HTML/CSS (sem biblioteca), com botão alternando **mensal (6 meses)** / **diário (30 dias)**. Buckets calculados no cliente.
+
+Botão **Exportar planilha (CSV)**: baixa a lista de clientes (nome, e-mail, telefone, plano, status, data_venc) — ver Relatórios.
 
 ### Aba 2 — Clientes
 
-Lista de confeiteiras com busca por nome/e-mail. Cada linha mostra status (Ativo/Teste/Vencido) e tem um botão **Gerenciar** que abre um modal com:
+Lista com busca (nome/e-mail). Cada linha: status (Ativo/Teste/Vencido) + botão **Gerenciar** → modal com:
 - **Plano e acesso:** ativar Básico / ativar Completo / inativar.
-- **Dar dias grátis:** botões +7 / +15 / +30 (estende `data_venc` e marca `status_assinatura='ativa'`).
+- **Dar dias grátis:** +7 / +15 / +30 (estende `data_venc`, marca ativa).
 - **Editar dados:** nome, nome_negocio, telefone, cidade.
-- **Bloquear:** `status_assinatura='cancelada'`, `ativo=false`.
+- **Bloquear:** cancelada + inativo.
+- **WhatsApp:** botão que abre `wa.me/55<telefone>` com uma mensagem pronta (envio manual, grátis).
 
-Todas as ações que mexem no perfil de outra cliente passam pela **Edge Function `admin-perfil`** (ver Segurança).
+Ações que mexem em perfil de outra cliente passam pela Edge Function `admin-perfil` (ver Segurança).
 
 ### Aba 3 — Novidades
 
-- Formulário: **título**, **mensagem**, **tipo** (`info` | `promo` | `alerta` — define cor/ícone do cartão).
-- Botão **Publicar** cria um registro em `avisos` com `ativo = true`.
-- Lista de avisos existentes com alternar **ativo/inativo** e **excluir**.
-- No **app das clientes**, os avisos `ativo = true` aparecem como **cartão no topo da Home**, com botão de **fechar** (dispensar localmente).
+Formulário de aviso:
+- **título**, **mensagem**, **tipo** (`info` | `promo` | `alerta` → cor/ícone)
+- **agendar para** (opcional): data/hora em que o aviso passa a aparecer; vazio = imediato
+- **canais**: sempre aparece no app; caixas opcionais **"Enviar por e-mail"** e **"Preparar WhatsApp"**
+
+Ao **Publicar**:
+- Cria registro em `avisos`.
+- Se **e-mail** marcado: chama a Edge Function `enviar-email` (Resend) para todas as clientes (assunto = título, corpo = mensagem). Resultado (enviados/erros) é mostrado.
+- Se **WhatsApp** marcado: abre a sub-tela de **envio manual** — lista de clientes com telefone, cada uma com botão **"Abrir WhatsApp"** (`wa.me` com a mensagem pronta). A admin clica uma a uma.
+
+Lista de avisos existentes: alternar **ativo/inativo**, ver **agendamento**, **excluir**, e **reenviar e-mail / reabrir WhatsApp**.
+
+**Regra de exibição no app** (sem necessidade de cron): um aviso aparece para a cliente quando `ativo = true` **e** (`agendado_para` é nulo **ou** `agendado_para <= agora`).
 
 ## Modelo de dados
 
@@ -58,56 +68,78 @@ Nova tabela `public.avisos`:
 | mensagem | text not null | |
 | tipo | text not null default 'info' | info / promo / alerta |
 | ativo | boolean not null default true | |
+| agendado_para | timestamptz null | quando começa a aparecer |
 | created_at | timestamptz default now() | |
 
 RLS em `avisos`:
-- **SELECT:** qualquer usuário autenticado pode ler avisos com `ativo = true`.
-- **INSERT/UPDATE/DELETE:** apenas quando o usuário é admin — política `exists (select 1 from perfis where id = auth.uid() and is_adm = true)`.
+- **SELECT:** autenticado pode ler onde `ativo = true` (o filtro de `agendado_para` é aplicado na query/no app).
+- **INSERT/UPDATE/DELETE:** apenas admin — `exists (select 1 from perfis where id = auth.uid() and is_adm = true)`.
 
-A tabela `perfis` não muda de schema.
+`perfis` não muda de schema.
 
-## Segurança — ajustes de perfil via Edge Function
+## Segurança
 
-Na fase anterior, revogamos `UPDATE` das colunas de acesso de `authenticated` (só `service_role` altera). Isso **inclui o admin**. Além disso, a política de linha de `perfis` permite o usuário editar só a própria linha (`id = auth.uid()`). Portanto, o admin **não consegue** alterar o perfil de outra cliente direto do cliente.
+### Ajustes de perfil — Edge Function `admin-perfil`
+Como as colunas de acesso de `perfis` são protegidas (só `service_role` altera) e a política de linha limita o usuário à própria linha, o admin não pode alterar perfis de terceiros pelo cliente. A função (`verify_jwt = false`, auth no código):
+1. Identifica o chamador pelo JWT.
+2. Confere via `service_role` que `perfis.is_adm = true` (senão 403).
+3. Executa com `service_role` conforme `{ acao, alvoId, dados }`:
+   - `definir_plano` → ativa + plano + valor_plano + `data_venc = hoje + 1 mês`.
+   - `dar_dias` → `data_venc = max(hoje, data_venc) + N`, ativa, ativo=true.
+   - `bloquear` → cancelada + ativo=false.
+   - `editar_dados` → nome, nome_negocio, telefone, cidade.
+4. CORS: `authorization, x-client-info, apikey, content-type`.
 
-Solução: **Edge Function `admin-perfil`** (`verify_jwt = false`, autenticação feita no código):
-1. Lê o JWT do chamador e identifica o usuário.
-2. Confere, via `service_role`, que `perfis.is_adm = true` para o chamador. Se não for admin → 403.
-3. Recebe `{ acao, alvoId, dados }` e executa com `service_role`:
-   - `definir_plano` → `status_assinatura='ativa'`, `plano`, `valor_plano`, `data_venc = hoje + 1 mês`.
-   - `dar_dias` → `data_venc = max(hoje, data_venc) + N`, `status_assinatura='ativa'`, `ativo=true`.
-   - `bloquear` → `status_assinatura='cancelada'`, `ativo=false`.
-   - `editar_dados` → atualiza `nome`, `nome_negocio`, `telefone`, `cidade`.
-4. CORS liberado para o app (mesmos headers da `criar-assinatura`: `authorization, x-client-info, apikey, content-type`).
+Substitui os botões de admin da fase anterior (Task 9), que falhavam por causa da proteção de colunas.
 
-Isso também **substitui** os botões de admin da fase anterior (Task 9), que escreviam direto e na prática falhavam por causa da proteção de colunas.
+### E-mail — Edge Function `enviar-email`
+- `verify_jwt = false`; confere `is_adm` do chamador (igual acima).
+- Body: `{ assunto, corpo, destinatarios? }`. Sem `destinatarios`, busca e-mails de todos os perfis não-admin via `service_role`.
+- Envia via **Resend** (`POST https://api.resend.com/emails`) usando o secret `RESEND_API_KEY` e um remetente verificado (`EMAIL_FROM`).
+- Envia em lote, com tratamento de erro por destinatário; retorna `{ enviados, falhas }`.
+- CORS igual às outras.
+
+## WhatsApp (link manual)
+
+Sem API/custo: o painel monta links `https://wa.me/55<telefone-só-dígitos>?text=<mensagem-encodada>`. A admin clica e o WhatsApp Web/app abre com a mensagem pronta para enviar. Aplicável tanto em "Clientes" (mensagem individual) quanto em "Novidades" (lista para disparo um a um). Telefones sem número válido são ignorados/avisados.
+
+## Relatórios (CSV)
+
+Geração **no cliente** (sem backend): a partir da lista de perfis já carregada, monta um CSV (nome, e-mail, telefone, cidade, plano, status, data_venc) e dispara o download via `Blob`. Botão na Visão Geral.
 
 ## Arquitetura (arquivos)
 
 Frontend:
-- `src/pages/DashboardAdm.tsx` — vira o shell com as 3 abas. Deixar enxuto, delegando para subcomponentes.
-- `src/components/adm/AdmVisaoGeral.tsx` — cartões + gráfico (recebe a lista de perfis por prop).
-- `src/components/adm/AdmClientes.tsx` — lista + modal "Gerenciar" (chama `admService`).
-- `src/components/adm/AdmNovidades.tsx` — formulário + lista de avisos (usa `avisoService`).
-- `src/lib/admMetrics.ts` — funções puras: `calcularIndicadores(perfis, hoje)` e `agruparCadastros(perfis, 'mes'|'dia', hoje)`. **Testáveis (Vitest).**
-- `src/components/AvisosBanner.tsx` — cartão de avisos exibido na Home das clientes.
-- `src/components/Home.tsx` — passa a renderizar `<AvisosBanner />` no topo.
-- `src/services/supabaseService.ts` — novos `avisoService` (listar ativos / listar todos / criar / alternar / excluir) e `admService` (chama a Edge Function `admin-perfil`).
+- `src/pages/DashboardAdm.tsx` — shell com 3 abas (enxuto; delega aos subcomponentes).
+- `src/components/adm/AdmVisaoGeral.tsx` — cartões + gráfico + botão exportar CSV.
+- `src/components/adm/AdmClientes.tsx` — lista + modal Gerenciar (usa `admService`) + botão WhatsApp.
+- `src/components/adm/AdmNovidades.tsx` — formulário (título/mensagem/tipo/agendar/canais) + lista de avisos + sub-tela WhatsApp.
+- `src/lib/admMetrics.ts` — puro/testável: `calcularIndicadores(perfis, hoje)`, `agruparCadastros(perfis, 'mes'|'dia', hoje)`.
+- `src/lib/csv.ts` — puro/testável: `gerarCsvClientes(perfis)`.
+- `src/lib/whatsapp.ts` — puro/testável: `linkWhatsApp(telefone, mensagem)`.
+- `src/components/AvisosBanner.tsx` — cartão de avisos na Home (aplica a regra de exibição).
+- `src/components/Home.tsx` — renderiza `<AvisosBanner />` no topo.
+- `src/services/supabaseService.ts` — `avisoService` (listar visíveis/listar todos/criar/alternar/excluir), `admService` (chama `admin-perfil`), `emailService` (chama `enviar-email`).
 
 Backend:
 - `supabase/migrations/<ts>_avisos.sql` — tabela `avisos` + RLS.
-- `supabase/functions/admin-perfil/index.ts` — Edge Function de ajustes (service_role + checagem is_adm).
+- `supabase/functions/admin-perfil/index.ts` — ajustes de perfil (service_role + is_adm).
+- `supabase/functions/enviar-email/index.ts` — envio via Resend (service_role + is_adm).
+- Secrets novos: `RESEND_API_KEY`, `EMAIL_FROM`.
 
 ## Critérios de sucesso
 
-- Admin vê os 5 indicadores corretos e o gráfico alternando mensal/diário.
-- Admin consegue ativar plano, dar dias grátis, editar dados e bloquear — e a mudança **persiste no banco** (via função segura) e reflete no acesso da cliente.
-- Admin publica um aviso; a confeiteira vê o cartão na Home e consegue fechá-lo.
-- Cliente comum **não** consegue criar/alterar avisos nem alterar perfis de terceiros (bloqueado por RLS / função).
-- Funções puras de métricas cobertas por testes.
+- Indicadores e gráfico (mensal/diário) corretos.
+- Ajustes de cliente persistem no banco (via função) e refletem no acesso.
+- Aviso publicado aparece na Home; agendado só aparece após a data; cliente pode fechar.
+- "Enviar por e-mail" entrega via Resend e mostra enviados/falhas.
+- "WhatsApp" abre o wa.me com a mensagem pronta.
+- Exportar CSV baixa a planilha de clientes.
+- Cliente comum não cria/edita avisos nem altera perfis de terceiros (RLS/função).
+- Funções puras (métricas, csv, whatsapp) cobertas por testes.
 
-## Fora de escopo (YAGNI)
+## Fora de escopo (próximas evoluções)
 
-- Envio por e-mail/WhatsApp das novidades (só aviso in-app).
-- Agendamento de avisos / segmentação por cliente (aviso é global).
-- Exportação de relatórios.
+- WhatsApp **automático** (Meta Cloud API / BSP) — quando houver volume; a base manual já fica pronta.
+- Agendamento de **envio** de e-mail/WhatsApp (hoje o agendamento é da **exibição** in-app; envios são disparados pela admin). Auto-envio agendado exigiria `pg_cron`.
+- Segmentação de avisos por grupo de clientes.
