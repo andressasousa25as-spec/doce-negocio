@@ -135,3 +135,15 @@ export const obrigacaoService = {
     return data
   }
 }
+
+// ── ASSINATURA (Mercado Pago) ────────────────────────────────────────────────
+export const assinaturaService = {
+  async criarLink(plano: 'basico' | 'completo'): Promise<string> {
+    const { data, error } = await supabase.functions.invoke('criar-assinatura', {
+      body: { plano },
+    })
+    if (error) throw error
+    if (!data?.init_point) throw new Error('Resposta sem init_point')
+    return data.init_point as string
+  },
+}

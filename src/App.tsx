@@ -4,6 +4,8 @@ import type { Perfil } from './types'
 import LoginPage    from './pages/LoginPage'
 import Dashboard    from './pages/Dashboard'
 import DashboardAdm from './pages/DashboardAdm'
+import { calcularAcesso } from './lib/acesso'
+import Planos from './pages/Planos'
 
 export default function App() {
   const [perfil,    setPerfil]    = useState<Perfil | null>(null)
@@ -53,16 +55,17 @@ export default function App() {
         if (userData?.user) {
           // Cria perfil automaticamente
           const venc = new Date()
-          venc.setMonth(venc.getMonth() + 1)
+          venc.setDate(venc.getDate() + 3)
           const { data: novoPerfil } = await supabase
             .from('perfis')
             .insert({
               id: userData.user.id,
               nome: userData.user.email?.split('@')[0] || 'Confeiteira',
               email: userData.user.email || '',
-              ativo: true,
-              plano: 'profissional',
-              valor_plano: 89.00,
+              ativo: false,
+              plano: 'completo',
+              status_assinatura: 'trial',
+              valor_plano: 0,
               data_inicio: new Date().toISOString().split('T')[0],
               data_venc: venc.toISOString().split('T')[0],
               is_adm: false
@@ -101,6 +104,12 @@ export default function App() {
   // ADM → Painel ADM
   if (perfil.is_adm) return <DashboardAdm perfil={perfil} onLogout={handleLogout} />
 
+  // Controle de acesso (trial / assinatura / bloqueio)
+  const acesso = calcularAcesso(perfil)
+  if (acesso.estado === 'bloqueada') {
+    return <Planos perfil={perfil} onLogout={handleLogout} />
+  }
+
   // Confeiteira → Dashboard principal
-  return <Dashboard perfil={perfil} onLogout={handleLogout} setPerfil={setPerfil} />
+  return <Dashboard perfil={perfil} acesso={acesso} onLogout={handleLogout} setPerfil={setPerfil} />
 }
