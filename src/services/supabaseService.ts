@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import type { Cliente, Pedido, Caixa } from '../types'
+import type { Cliente, Pedido, Caixa, Aviso } from '../types'
 
 // ── PERFIL ──────────────────────────────────────────────────────────────────
 export const perfilService = {
@@ -145,5 +145,61 @@ export const assinaturaService = {
     if (error) throw error
     if (!data?.init_point) throw new Error('Resposta sem init_point')
     return data.init_point as string
+  },
+}
+
+// ── AVISOS ───────────────────────────────────────────────────────────────────
+export const avisoService = {
+  async listarVisiveis(): Promise<Aviso[]> {
+    const agora = new Date().toISOString()
+    const { data, error } = await supabase
+      .from('avisos').select('*')
+      .eq('ativo', true)
+      .or(`agendado_para.is.null,agendado_para.lte.${agora}`)
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return (data || []) as Aviso[]
+  },
+  async listarTodos(): Promise<Aviso[]> {
+    const { data, error } = await supabase.from('avisos').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    return (data || []) as Aviso[]
+  },
+  async criar(aviso: Pick<Aviso, 'titulo' | 'mensagem' | 'tipo'> & { agendado_para?: string | null }) {
+    const { data, error } = await supabase.from('avisos').insert(aviso).select().single()
+    if (error) throw error
+    return data as Aviso
+  },
+  async alternar(id: string, ativo: boolean) {
+    const { error } = await supabase.from('avisos').update({ ativo }).eq('id', id)
+    if (error) throw error
+  },
+  async excluir(id: string) {
+    const { error } = await supabase.from('avisos').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ── ADMIN (ajustes de perfil via Edge Function) ──────────────────────────────
+type AcaoAdm =
+  | { acao: 'definir_plano'; alvoId: string; dados: { plano: 'basico' | 'completo' } }
+  | { acao: 'dar_dias'; alvoId: string; dados: { dias: number } }
+  | { acao: 'bloquear'; alvoId: string; dados?: Record<string, never> }
+  | { acao: 'editar_dados'; alvoId: string; dados: { nome?: string; nome_negocio?: string; telefone?: string; cidade?: string } }
+
+export const admService = {
+  async executar(payload: AcaoAdm) {
+    const { data, error } = await supabase.functions.invoke('admin-perfil', { body: payload })
+    if (error) throw error
+    return data
+  },
+}
+
+// ── E-MAIL (Resend via Edge Function) ────────────────────────────────────────
+export const emailService = {
+  async enviar(assunto: string, corpo: string): Promise<{ enviados: number; falhas: number }> {
+    const { data, error } = await supabase.functions.invoke('enviar-email', { body: { assunto, corpo } })
+    if (error) throw error
+    return data as { enviados: number; falhas: number }
   },
 }
