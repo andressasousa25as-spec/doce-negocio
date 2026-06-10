@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import type { Perfil, Dica, Pedido } from '../types'
+import AvisosBanner from './AvisosBanner'
 import { dicaService, pedidoService } from '../services/supabaseService'
 import { format, parseISO, addDays } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -58,6 +59,8 @@ export default function Home({ perfil }: Props) {
   /* ── COLUNA ESQUERDA */
   const left = (
     <div style={{ display:'flex', flexDirection:'column', gap:16, flex:1, minWidth:0 }}>
+
+      <AvisosBanner />
 
       {/* Banner */}
       <div style={{ borderRadius:20, background:'linear-gradient(135deg,#EC4899 0%,#DB2777 55%,#BE185D 100%)', padding:'24px 24px 20px', color:'white', position:'relative', overflow:'hidden' }}>
