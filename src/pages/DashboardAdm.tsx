@@ -14,6 +14,21 @@ export default function DashboardAdm({ perfil, onLogout }: Props) {
       .finally(() => setLoading(false))
   }, [])
 
+  async function ativarPlano(c: Perfil, plano: 'basico' | 'completo') {
+    const venc = new Date(); venc.setMonth(venc.getMonth() + 1)
+    await perfilService.atualizar(c.id, {
+      status_assinatura: 'ativa', ativo: true, plano,
+      valor_plano: plano === 'completo' ? 99 : 59,
+      data_venc: venc.toISOString().split('T')[0],
+    })
+    setClientes(cs => cs.map(x => x.id === c.id ? { ...x, status_assinatura: 'ativa', ativo: true, plano } : x))
+  }
+
+  async function inativar(c: Perfil) {
+    await perfilService.atualizar(c.id, { status_assinatura: 'cancelada', ativo: false })
+    setClientes(cs => cs.map(x => x.id === c.id ? { ...x, status_assinatura: 'cancelada', ativo: false } : x))
+  }
+
   const ativos   = clientes.filter(c => c.ativo).length
   const receita  = clientes.filter(c => c.ativo).reduce((s, c) => s + (c.valor_plano || 0), 0)
 
@@ -69,6 +84,11 @@ export default function DashboardAdm({ perfil, onLogout }: Props) {
                   <p className="text-xs text-gray-400 mt-1">
                     R$ {(c.valor_plano || 0).toFixed(2).replace('.', ',')}
                   </p>
+                  <div className="flex gap-1 mt-2 justify-end">
+                    <button onClick={() => ativarPlano(c, 'basico')} className="text-xs px-2 py-1 rounded bg-pink-100 text-pink-700">Básico</button>
+                    <button onClick={() => ativarPlano(c, 'completo')} className="text-xs px-2 py-1 rounded bg-pink-500 text-white">Completo</button>
+                    <button onClick={() => inativar(c)} className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-500">Inativar</button>
+                  </div>
                 </div>
               </div>
             ))}
