@@ -1,0 +1,5 @@
+[functions.criar-assinatura]
+verify_jwt = true
+
+[functions.mp-webhook]
+verify_jwt = false
