@@ -23,15 +23,23 @@ export default function AdmNovidades({ clientes }: { clientes: Perfil[] }) {
     setSalvando(true)
     try {
       await avisoService.criar({ titulo, mensagem, tipo, agendado_para: agendar ? new Date(agendar).toISOString() : null })
-      if (porEmail) {
+    } catch {
+      alert('Não foi possível publicar.')
+      setSalvando(false)
+      return
+    }
+    if (porEmail) {
+      try {
         const r = await emailService.enviar(titulo, mensagem)
-        alert(`E-mails enviados: ${r.enviados} · falhas: ${r.falhas}`)
+        alert(`Aviso publicado! E-mails enviados: ${r.enviados} · falhas: ${r.falhas}`)
+      } catch {
+        alert('Aviso publicado! (Mas o envio por e-mail ainda não está configurado — fica só no app por enquanto.)')
       }
-      setZap(mensagem)
-      setTitulo(''); setMensagem(''); setAgendar(''); setPorEmail(false)
-      carregar()
-    } catch { alert('Não foi possível publicar.') }
-    finally { setSalvando(false) }
+    }
+    setZap(mensagem)
+    setTitulo(''); setMensagem(''); setAgendar(''); setPorEmail(false)
+    carregar()
+    setSalvando(false)
   }
 
   const comZap = clientes.filter(c => linkWhatsApp(c.telefone, '') !== null)
