@@ -35,18 +35,20 @@ export default function LoginPage({ onLogin }: Props) {
       const { data, error } = await supabase.auth.signUp({ email, password: senha })
       if (error) throw error
       if (!data.user) throw new Error('Usuário não criado')
-      // Cria perfil
+      // Cria perfil com teste gratis de 3 dias
+      const inicio = new Date()
       const venc = new Date()
-      venc.setMonth(venc.getMonth() + 1)
+      venc.setDate(venc.getDate() + 3)
       const { data: perfil } = await supabase.from('perfis').insert({
         id: data.user.id,
         nome, email,
         telefone: tel,
         nome_negocio: negocio,
-        ativo: true,
-        plano: 'profissional',
-        valor_plano: 89.00,
-        data_inicio: new Date().toISOString().split('T')[0],
+        ativo: false,
+        plano: 'completo',
+        status_assinatura: 'trial',
+        valor_plano: 0,
+        data_inicio: inicio.toISOString().split('T')[0],
         data_venc: venc.toISOString().split('T')[0],
         is_adm: false
       }).select().single()
@@ -122,7 +124,7 @@ export default function LoginPage({ onLogin }: Props) {
                 {loading ? 'Cadastrando...' : 'Começar agora 🎂'}
               </button>
               <p className="text-xs text-center text-gray-400">
-                Plano Profissional · R$89/mês · Cancele quando quiser
+                3 dias grátis · Depois a partir de R$59/mês · Cancele quando quiser
               </p>
             </form>
           )}
