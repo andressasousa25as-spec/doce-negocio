@@ -118,17 +118,17 @@ export default function Caixa({ perfil }: Props) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {lancamentos.map(l => (
-            <div key={l.id} style={{ backgroundColor: 'white', borderRadius: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: 20 }}>{l.tipo === 'entrada' ? '⬆️' : '⬇️'}</span>
-                <div>
-                  <p style={{ fontWeight: 500, color: '#374151', fontSize: 13, margin: '0 0 2px' }}>{l.descricao}</p>
-                  <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0 }}>
+            <div key={l.id} style={{ backgroundColor: 'white', borderRadius: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>{l.tipo === 'entrada' ? '⬆️' : '⬇️'}</span>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ fontWeight: 500, color: '#374151', fontSize: 13, margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.descricao}</p>
+                  <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {l.categoria} · {format(new Date(l.data + 'T12:00:00'), 'dd/MM', { locale: ptBR })}
                   </p>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                 <p style={{ fontWeight: 700, fontSize: 13, color: l.tipo === 'entrada' ? '#16A34A' : '#F87171', margin: 0 }}>
                   {l.tipo === 'entrada' ? '+' : '-'} R$ {l.valor.toFixed(2).replace('.', ',')}
                 </p>

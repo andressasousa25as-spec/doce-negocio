@@ -8,6 +8,26 @@ interface Props {
   onLogout: () => void
 }
 
+const S = {
+  wrap: { display: 'flex', flexDirection: 'column' as const, gap: 16, width: '100%' },
+  h2: { fontSize: 18, fontWeight: 700, color: '#374151', margin: 0 },
+  card: {
+    backgroundColor: 'white', borderRadius: 16, padding: 16,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.06)', boxSizing: 'border-box' as const,
+  },
+  label: { fontSize: 11, color: '#6B7280', marginBottom: 4, display: 'block' as const },
+  input: {
+    width: '100%', border: '1px solid #FBCFE8', borderRadius: 12,
+    padding: '10px 12px', fontSize: 14, outline: 'none',
+    boxSizing: 'border-box' as const,
+  },
+  btn: {
+    width: '100%', backgroundColor: '#EC4899', color: 'white', fontWeight: 700,
+    padding: '12px', borderRadius: 12, border: 'none', cursor: 'pointer',
+    fontSize: 14,
+  },
+}
+
 export default function PerfilPage({ perfil, setPerfil, onLogout }: Props) {
   const [form,    setForm]    = useState({ ...perfil })
   const [saving,  setSaving]  = useState(false)
@@ -36,75 +56,106 @@ export default function PerfilPage({ perfil, setPerfil, onLogout }: Props) {
     ? new Date(perfil.data_venc + 'T12:00:00').toLocaleDateString('pt-BR')
     : '—'
 
+  const campos = [
+    { field: 'nome',         label: 'Seu nome',            type: 'text', placeholder: 'Nome completo' },
+    { field: 'nome_negocio', label: 'Nome da confeitaria', type: 'text', placeholder: 'Ex: Doces da Maria' },
+    { field: 'cnpj_mei',     label: 'CNPJ MEI',            type: 'text', placeholder: '00.000.000/0001-00' },
+    { field: 'telefone',     label: 'WhatsApp',            type: 'tel',  placeholder: '(96) 99999-9999' },
+    { field: 'cidade',       label: 'Cidade',              type: 'text', placeholder: 'Macapá' },
+  ]
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-bold text-gray-700">👤 Meu Perfil</h2>
+    <div style={S.wrap}>
+      <h2 style={S.h2}>👤 Meu Perfil</h2>
 
       {/* Card plano */}
-      <div className="bg-gradient-to-r from-amber-400 to-pink-500 rounded-2xl p-4 text-white">
-        <p className="text-white/80 text-xs">Plano atual</p>
-        <p className="text-xl font-bold capitalize mt-0.5">{perfil.plano}</p>
-        <div className="flex items-center justify-between mt-2">
-          <p className="text-white/80 text-sm">
-            R$ {(perfil.valor_plano || 0).toFixed(2).replace('.', ',')}/mês
-          </p>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-            perfil.ativo ? 'bg-green-400 text-white' : 'bg-red-400 text-white'}`}>
+      <div style={{
+        background: 'linear-gradient(135deg, #FBBF24 0%, #EC4899 100%)',
+        borderRadius: 16, padding: 18, color: 'white',
+        boxSizing: 'border-box',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.85)' }}>Plano atual</p>
+            <p style={{ margin: '2px 0 0', fontSize: 22, fontWeight: 700, textTransform: 'capitalize' }}>
+              {perfil.plano}
+            </p>
+          </div>
+          <span style={{
+            flexShrink: 0, fontSize: 12, padding: '3px 10px', borderRadius: 999,
+            fontWeight: 600, whiteSpace: 'nowrap',
+            backgroundColor: perfil.ativo ? '#34D399' : '#F87171', color: 'white',
+          }}>
             {perfil.ativo ? '✅ Ativo' : '❌ Inativo'}
           </span>
         </div>
-        <p className="text-white/70 text-xs mt-1">Vence em: {venc}</p>
+        <p style={{ margin: '10px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.85)' }}>
+          R$ {(perfil.valor_plano || 0).toFixed(2).replace('.', ',')}/mês
+        </p>
+        <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>
+          Vence em: {venc}
+        </p>
       </div>
 
       {/* Formulário */}
-      <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
-        <h3 className="font-semibold text-gray-700 text-sm">Dados do negócio</h3>
+      <div style={S.card}>
+        <h3 style={{ margin: '0 0 12px', fontWeight: 600, color: '#374151', fontSize: 14 }}>
+          Dados do negócio
+        </h3>
         {sucesso && (
-          <div className="bg-green-50 text-green-600 text-sm rounded-xl p-3">
+          <div style={{ backgroundColor: '#ECFDF5', color: '#059669', fontSize: 13, borderRadius: 12, padding: 12, marginBottom: 12 }}>
             ✅ Perfil atualizado com sucesso!
           </div>
         )}
         {erro && (
-          <div className="bg-red-50 text-red-500 text-sm rounded-xl p-3">{erro}</div>
-        )}
-        {[
-          { field: 'nome',         label: 'Seu nome',          type: 'text', placeholder: 'Nome completo' },
-          { field: 'nome_negocio', label: 'Nome da confeitaria', type: 'text', placeholder: 'Ex: Doces da Maria' },
-          { field: 'cnpj_mei',     label: 'CNPJ MEI',          type: 'text', placeholder: '00.000.000/0001-00' },
-          { field: 'telefone',     label: 'WhatsApp',           type: 'tel',  placeholder: '(96) 99999-9999' },
-          { field: 'cidade',       label: 'Cidade',             type: 'text', placeholder: 'Macapá' },
-        ].map(({ field, label, type, placeholder }) => (
-          <div key={field}>
-            <label className="text-xs text-gray-500 mb-1 block">{label}</label>
-            <input type={type} placeholder={placeholder}
-              value={(form as Record<string, unknown>)[field] as string || ''}
-              onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
-              className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300" />
+          <div style={{ backgroundColor: '#FEF2F2', color: '#EF4444', fontSize: 13, borderRadius: 12, padding: 12, marginBottom: 12 }}>
+            {erro}
           </div>
-        ))}
-        <div>
-          <label className="text-xs text-gray-500 mb-1 block">E-mail</label>
-          <input type="email" value={perfil.email} disabled
-            className="w-full border border-gray-100 rounded-xl px-3 py-2.5 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {campos.map(({ field, label, type, placeholder }) => (
+            <div key={field}>
+              <label style={S.label}>{label}</label>
+              <input type={type} placeholder={placeholder}
+                value={(form as Record<string, unknown>)[field] as string || ''}
+                onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
+                style={S.input} />
+            </div>
+          ))}
+          <div>
+            <label style={S.label}>E-mail</label>
+            <input type="email" value={perfil.email} disabled
+              style={{ ...S.input, border: '1px solid #F3F4F6', backgroundColor: '#F9FAFB', color: '#9CA3AF', cursor: 'not-allowed' }} />
+          </div>
+          <button onClick={salvar} disabled={saving}
+            style={{ ...S.btn, opacity: saving ? 0.5 : 1, marginTop: 4 }}>
+            {saving ? 'Salvando...' : 'Salvar alterações'}
+          </button>
         </div>
-        <button onClick={salvar} disabled={saving}
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50">
-          {saving ? 'Salvando...' : 'Salvar alterações'}
-        </button>
       </div>
 
       {/* Pagamento */}
-      <div className="bg-white rounded-2xl shadow-sm p-4">
-        <h3 className="font-semibold text-gray-700 text-sm mb-3">💳 Assinatura</h3>
+      <div style={S.card}>
+        <h3 style={{ margin: '0 0 12px', fontWeight: 600, color: '#374151', fontSize: 14 }}>
+          💳 Assinatura
+        </h3>
         <a href="https://www.mercadopago.com.br" target="_blank" rel="noreferrer"
-          className="block bg-blue-500 text-white text-sm text-center font-bold py-2.5 rounded-xl hover:bg-blue-600 transition-colors">
+          style={{
+            display: 'block', backgroundColor: '#3B82F6', color: 'white', fontSize: 14,
+            textAlign: 'center', fontWeight: 700, padding: '10px', borderRadius: 12,
+            textDecoration: 'none',
+          }}>
           Gerenciar assinatura →
         </a>
       </div>
 
       {/* Sair */}
       <button onClick={onLogout}
-        className="w-full border border-red-200 text-red-400 font-semibold py-3 rounded-xl hover:bg-red-50 transition-colors text-sm">
+        style={{
+          width: '100%', border: '1px solid #FECACA', color: '#F87171', fontWeight: 600,
+          padding: '12px', borderRadius: 12, backgroundColor: 'transparent', cursor: 'pointer',
+          fontSize: 14,
+        }}>
         Sair da conta
       </button>
     </div>

@@ -19,6 +19,7 @@ const ABAS: { id: Aba; label: string; icon: string }[] = [
   { id: 'perfil',   label: 'Perfil',   icon: '👤' },
 ]
 const SIDEBAR_W = 224
+const CONTENT_MAX = 900   // largura máxima da área de conteúdo (centralizada)
 
 export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
   const [aba, setAba] = useState<Aba>('home')
@@ -83,15 +84,17 @@ export default function Dashboard({ perfil, onLogout, setPerfil }: Props) {
         )}
 
         {desktop && (
-          <div style={{ backgroundColor: 'white', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #FCE7F3' }}>
+          <div style={{ backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #FCE7F3' }}>
+            <div style={{ maxWidth: CONTENT_MAX, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxSizing: 'border-box' }}>
             <h1 style={{ fontWeight: 700, color: '#111827', fontSize: 16, margin: 0 }}>{ABAS.find(a => a.id === aba)?.icon} {ABAS.find(a => a.id === aba)?.label}</h1>
             <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, backgroundColor: perfil.ativo ? '#F0FDF4' : '#FEF2F2', color: perfil.ativo ? '#16A34A' : '#DC2626' }}>
               {perfil.ativo ? '✓ Plano ativo' : '✗ Plano inativo'}
             </span>
+            </div>
           </div>
         )}
 
-        <div style={{ flex: 1, padding: desktop ? '28px 32px 48px' : '16px 16px 100px', maxWidth: 860, width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ flex: 1, padding: desktop ? '28px 32px 48px' : '16px 16px 100px', maxWidth: CONTENT_MAX, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
           {aba === 'home'     && <Home     perfil={perfil} />}
           {aba === 'agenda'   && <Agenda   perfil={perfil} />}
           {aba === 'caixa'    && <Caixa    perfil={perfil} />}

@@ -31,3 +31,5 @@ dist-ssr
 # Scripts utilitarios (gerados durante dev)
 *.cjs
 _scripts/
+
+.vercel

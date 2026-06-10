@@ -108,18 +108,18 @@ export default function Clientes({ perfil }: Props) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {filtrados.map(c => (
-            <div key={c.id} style={{ backgroundColor: 'white', borderRadius: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontWeight: 600, color: '#374151', fontSize: 14, margin: '0 0 2px' }}>{c.nome}</p>
+            <div key={c.id} style={{ backgroundColor: 'white', borderRadius: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontWeight: 600, color: '#374151', fontSize: 14, margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.nome}</p>
                 {c.telefone && (
                   <a href={'https://wa.me/55' + c.telefone.replace(/\D/g, '')} target="_blank" rel="noreferrer"
                     style={{ fontSize: 12, color: '#16A34A', textDecoration: 'none' }}>
                     📱 {c.telefone}
                   </a>
                 )}
-                {c.email && <p style={{ fontSize: 11, color: '#9CA3AF', margin: '2px 0 0' }}>{c.email}</p>}
+                {c.email && <p style={{ fontSize: 11, color: '#9CA3AF', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}</p>}
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                 <button onClick={() => abrirEdicao(c)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 4 }}>✏️</button>
                 <button onClick={() => deletar(c.id)}  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 4 }}>🗑️</button>
               </div>
